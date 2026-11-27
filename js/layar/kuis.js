@@ -5,6 +5,11 @@
   var hasilTerakhir = {};
 
   function soalModul(n) { return LK.data.kuis[n] || []; }
+  /* Tautan ke bagian materi yang judulnya sama dengan topik soal, atau ke awal materi. */
+  var tautanTopik = LK.tautanTopik = function (n, topik) {
+    var i = (LK.data.materi[n] || []).map(function (x) { return x.judul; }).indexOf(topik);
+    return "#/modul/" + n + "/materi" + (i > 0 ? "?bagian=" + (i + 1) : "");
+  };
 
   /* ---------- Kuis ---------- */
   LK.rute("/modul/(\\d+)/kuis", function (ctx) {
@@ -33,7 +38,7 @@
         panel = benar
           ? '<div class="umpan benar"><p class="umpan-judul">' + I("check-circle") + "Mantap, benar!</p><p>" + esc(q.alasan) + "</p></div>"
           : '<div class="umpan salah"><p class="umpan-judul">' + I("x-circle") + "Belum tepat</p><p>Jawaban yang benar adalah " + esc(q.opsi[q.benar]) + ". " + esc(q.alasan) + "</p>" +
-            '<p><a class="tautan" href="#/modul/' + n + '/materi">Baca lagi: ' + esc(q.topik) + "</a></p></div>";
+            '<p><a class="tautan" href="' + tautanTopik(n, q.topik) + '">Baca lagi: ' + esc(q.topik) + "</a></p></div>";
       }
       return '<div class="kartu kartu-xl kartu-kuis tumpuk">' +
         '<div class="hanya-desktop-blok">' + K.progresBar(((s.i + (s.dicek ? 1 : 0)) / total) * 100, "Soal " + (s.i + 1) + " dari " + total, "Progres kuis") + "</div>" +
@@ -152,7 +157,7 @@
         (next ? '<div class="sambungan"><span class="led" aria-hidden="true">' + n + '</span><span class="kabel-pendek" aria-hidden="true"></span><span class="led mati" aria-hidden="true">' + (n + 1) + "</span><p>Kabel ke Modul " + (n + 1) + " belum tersambung. Butuh " + kurang + " soal benar lagi.</p></div>" : "") +
         (offline ? '<p class="chip chip-accent">Tersimpan di HP ini</p>' : "") +
         "<h2>Yang perlu dipelajari lagi (" + h.salah.length + ' soal)</h2><ul class="daftar-cek">' + Object.keys(topik).map(function (t) {
-          return '<li class="kartu baris-antara"><div><p class="label">' + esc(t) + '</p><p class="caption">' + topik[t].length + " soal belum tepat</p></div>" + K.tombol({ label: "Pelajari", varian: "secondary", href: "#/modul/" + n + "/materi" }) + "</li>";
+          return '<li class="kartu baris-antara"><div><p class="label">' + esc(t) + '</p><p class="caption">' + topik[t].length + " soal belum tepat</p></div>" + K.tombol({ label: "Pelajari", varian: "secondary", href: tautanTopik(n, t) }) + "</li>";
         }).join("") + "</ul>" +
         '<div class="deret-tombol">' + K.tombol({ label: "Ulangi Kuis", href: "#/modul/" + n + "/kuis" }) + K.tombol({ label: "Pelajari lagi bagian yang salah", varian: "secondary", href: "#/modul/" + n + "/materi" }) + "</div>" +
         '<p class="caption">Kuis boleh diulang berapa kali pun. Nilai terbaikmu yang disimpan.</p>';
