@@ -68,11 +68,14 @@ p { margin: 0; }
   .app-isi { padding-left: var(--gutter-tablet); padding-right: var(--gutter-tablet); max-width: calc(720px + 2 * var(--gutter-tablet)); margin: 0 auto; }
 }
 @media (min-width: 1024px) {
+  /* Matikan efek pantul (rubber band) Safari/Mac di ujung halaman, supaya sidebar
+   * tidak ikut tertarik naik turun. Hanya di desktop: di HP tarik-untuk-muat-ulang tetap jalan. */
+  html { overscroll-behavior-y: none; }
   .app { display: grid; grid-template-columns: var(--size-sidebar) minmax(0, 1fr); }
   .app .topbar { display: none; }
   .sidebar {
     display: flex; flex-direction: column; gap: var(--space-1);
-    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto;
     /* Gulir di sidebar berhenti di ujungnya dan tidak diteruskan ke halaman. */
     overscroll-behavior: contain;
     background: var(--color-surface);
