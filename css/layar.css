@@ -160,25 +160,46 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .ubin-simbol { grid-column: 1 / -1; }
 }
 @media (min-width: 1280px) {
-  .hero { margin: 0 var(--space-6); border-radius: 32px; min-height: 1000px; padding: 170px var(--space-7) var(--space-7); }
+  /* Kotak hero setinggi layar (dikurangi navigasi 80px dan jarak bawah) supaya tidak melewati layar.
+   * Isi berada di tengah; kartu melayang menempel ke sudut kotak. */
+  .hero {
+    margin: 0 var(--space-6); border-radius: 32px;
+    height: calc(100vh - 80px - var(--space-5)); height: calc(100svh - 80px - var(--space-5));
+    min-height: 640px; max-height: 1000px;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: var(--space-6) var(--space-7);
+  }
   .jalur-pcb { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
   .jalur-pcb path { fill: none; stroke: var(--color-primary-base); stroke-width: 2; stroke-dasharray: 3 6; opacity: 0.55; vector-effect: non-scaling-stroke; }
   .melayang { position: absolute; inset: 0; display: block; margin: 0; pointer-events: none; }
-  .melayang .m-tabel, .melayang .m-gerbang, .melayang .m-kuis, .melayang .m-flow { display: flex; }
+  .melayang .m-tabel, .melayang .m-gerbang { display: flex; }
   .melayang > .kartu-melayang { position: absolute; }
-  .m-tabel { left: 4%; top: 46px; width: 240px; }
+  .m-tabel { left: 4%; top: 5%; width: 240px; }
   .m-tabel .baris { flex-wrap: nowrap; }
-  .m-gerbang { right: 4%; top: 60px; width: 270px; }
-  .m-kuis { left: 2%; top: 450px; width: 290px; }
-  .m-flow { right: 2%; top: 520px; width: 230px; }
+  .m-gerbang { right: 4%; top: 6%; width: 270px; }
+  .m-kuis { left: 2%; top: 45%; width: 290px; }
+  .m-flow { right: 2%; top: 40%; width: 230px; }
   .m-flow .fc-mini .fc { width: 190px; }
   .m-flow .fc-keputusan { padding: var(--space-3) var(--space-5); }
   .m-kode { left: 3%; bottom: 24px; width: 330px; transform: rotate(-4deg); }
-  .m-rangkaian { right: 4%; bottom: 60px; width: 390px; transform: rotate(4deg); }
+  .m-rangkaian { right: 3%; bottom: 48px; width: 340px; transform: rotate(4deg); }
   .ubin-simbol { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); gap: var(--space-6); }
   .ubin-simbol span:nth-child(odd) { transform: translateY(-50px) rotate(-6deg); }
   .ubin-simbol span:nth-child(even) { transform: rotate(5deg); }
   .m-kuis .opsi { min-height: 48px; }
+}
+/* Kartu kuis dan flowchart di tengah samping hanya muat kalau layarnya cukup tinggi. */
+@media (min-width: 1280px) and (min-height: 1000px) {
+  .melayang .m-kuis, .melayang .m-flow { display: flex; }
+}
+/* Layar laptop yang pendek: kartu dikecilkan dan ubin simbol disembunyikan
+ * supaya tidak menutupi teks dan tombol di tengah. */
+@media (min-width: 1280px) and (max-height: 860px) {
+  .ubin-simbol { display: none; }
+  .m-kode { transform: rotate(-4deg) scale(0.8); transform-origin: left bottom; }
+  .m-rangkaian { transform: rotate(4deg) scale(0.8); transform-origin: right bottom; }
+  .m-tabel { transform: scale(0.9); transform-origin: left top; }
+  .m-gerbang { transform: scale(0.9); transform-origin: right top; }
 }
 .landing-bagian { padding: var(--space-7) var(--gutter-mobile) 0; max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-4); }
 .landing-bagian .judul-bab { margin-top: var(--space-3); }
