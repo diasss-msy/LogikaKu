@@ -127,7 +127,8 @@
       var salahIdx = lulusDemo ? [2, 6] : [0, 2, 5, 6];
       salahIdx = salahIdx.filter(function (i) { return i < total; }).slice(0, lulusDemo ? Math.floor(total * 0.2) || 0 : Math.ceil(total * 0.4));
       var salah = salahIdx.map(function (i) { return { no: i + 1, q: soal[i], jawab: (soal[i].benar + 3) % 4 }; });
-      var r = LK.catatKuis(n, total - salah.length, total);
+      /* Contoh tampilan untuk tinjauan desain. Di mode server tidak ikut disimpan ke akun. */
+      var r = LK.server ? { lulus: (total - salah.length) / total >= 0.7 } : LK.catatKuis(n, total - salah.length, total);
       hasilTerakhir[n] = { benar: total - salah.length, total: total, salah: salah, lulus: r.lulus };
       LK.gantiHashDiam("#/modul/" + n + "/hasil" + (ctx.q.lencana ? "?lencana" : ""));
     }

@@ -1,7 +1,11 @@
 /*
- * Status prototype: pengaturan tampilan dan progres siswa contoh.
- * Tidak ada akun sungguhan. Yang disimpan di localStorage hanya pengaturan
- * tampilan dan progres contoh. Kata sandi tidak pernah disimpan di mana pun.
+ * Status: pengaturan tampilan, sesi siswa, dan progres.
+ * Ada dua mode:
+ * - Mode server (dibuka lewat Laravel): akun dan progres tersimpan di database
+ *   lewat LK.api. Halaman punya <meta name="lk-api">.
+ * - Mode demo (file statis atau GitHub Pages): tidak ada akun sungguhan, progres
+ *   contoh disimpan di localStorage.
+ * Di kedua mode, kata sandi tidak pernah disimpan di browser.
  */
 window.LK = window.LK || {};
 (function () {
@@ -38,17 +42,87 @@ window.LK = window.LK || {};
     return LK.pref.gerak === "kurang" || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   };
 
-  /* ---------- Sesi siswa contoh ---------- */
+  /* ---------- Hubungan ke server Laravel ---------- */
+  var metaApi = document.querySelector('meta[name="lk-api"]');
+  LK.server = !!metaApi;
+  LK.api = {
+    dasar: metaApi ? metaApi.getAttribute("content").replace(/\/$/, "") : "",
+    /* Mengembalikan Promise berisi { ok, status, data }. Tidak pernah reject karena status HTTP. */
+    kirim: function (metode, jalur, isi) {
+      var token = document.querySelector('meta[name="csrf-token"]');
+      return fetch(LK.api.dasar + jalur, {
+        method: metode,
+        credentials: "same-origin",
+        headers: Object.assign({ "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" },
+          isi ? { "Content-Type": "application/json" } : {},
+          token ? { "X-CSRF-TOKEN": token.getAttribute("content") } : {}),
+        body: isi ? JSON.stringify(isi) : undefined
+      }).then(function (r) {
+        return r.text().then(function (t) {
+          var data = null;
+          try { data = t ? JSON.parse(t) : null; } catch (e) { data = null; }
+          /* Token CSRF baru dikirim setiap masuk, daftar, dan keluar karena sesi diganti. */
+          if (data && data.csrf && token) token.setAttribute("content", data.csrf);
+          return { ok: r.ok, status: r.status, data: data };
+        });
+      }, function () { return { ok: false, status: 0, data: null }; });
+    },
+    /* Pesan galat pertama untuk satu kolom dari jawaban validasi Laravel (422). */
+    galat: function (j, kolom) {
+      return j && j.data && j.data.errors && j.data.errors[kolom] ? j.data.errors[kolom][0] : null;
+    }
+  };
+
+  /* ---------- Sesi siswa ---------- */
   var SESI = "logikaku-sesi";
   function salin(o) { return JSON.parse(JSON.stringify(o)); }
   function sesiDimas() { return { nama: D.siswa.nama, email: D.siswa.email, progres: salin(D.progres), perluDiulang: salin(D.perluDiulang) }; }
-  LK.sesi = simpan.baca(SESI, null) || sesiDimas();
-  LK.simpanSesi = function () { simpan.tulis(SESI, LK.sesi); };
+  /* Di mode server, sesi baru terisi setelah LK.muatSesi() bertanya ke /saya. */
+  LK.sesi = LK.server ? null : (simpan.baca(SESI, null) || sesiDimas());
+  LK.simpanSesi = function () { if (!LK.server) simpan.tulis(SESI, LK.sesi); };
   LK.masukSebagaiDimas = function () { LK.sesi = sesiDimas(); LK.simpanSesi(); };
   LK.daftarBaru = function (nama, email) {
     LK.sesi = { nama: nama || "Teman", email: email || "", progres: {}, perluDiulang: [] };
     LK.simpanSesi();
   };
+  /* Materi yang skor kuis terakhirnya di bawah 70, untuk bagian "Perlu diulang" di Rekap. */
+  function hitungPerluDiulang(progres) {
+    var hasil = [];
+    D.modul.forEach(function (m) {
+      var p = progres[m.no];
+      if (p && p.terakhir !== undefined && p.terakhir !== null && p.terakhir / p.total < 0.7) {
+        hasil.push({ modul: m.no, topik: m.judul, benar: p.terakhir, total: p.total });
+      }
+    });
+    return hasil;
+  }
+  /* Terima data akun dari server: { nama, email, progres: { "1": { langkah, terakhir, terbaik, total } } }. */
+  LK.terimaSesi = function (d) {
+    if (!d) { LK.sesi = null; return; }
+    var progres = {};
+    Object.keys(d.progres || {}).forEach(function (k) {
+      var p = d.progres[k], o = { langkah: p.langkah || 0 };
+      if (p.terakhir !== null && p.terakhir !== undefined) { o.terakhir = p.terakhir; o.terbaik = p.terbaik; o.total = p.total; }
+      progres[k] = o;
+    });
+    LK.sesi = { nama: d.nama, email: d.email, progres: progres, perluDiulang: hitungPerluDiulang(progres) };
+  };
+  LK.muatSesi = function () {
+    if (!LK.server) return Promise.resolve(LK.sesi);
+    return LK.api.kirim("GET", "/saya").then(function (j) {
+      LK.terimaSesi(j.ok ? j.data : null);
+      LK.sesiGagal = !j.ok && j.status !== 401;
+      return LK.sesi;
+    });
+  };
+  LK.masuk = function () { return !!LK.sesi; };
+  /* Kirim perubahan progres ke server. Tampilan sudah berubah duluan, jadi gagal simpan cukup diumumkan. */
+  function kirimProgres(jalur, isi) {
+    if (!LK.server) return;
+    LK.api.kirim("POST", jalur, isi).then(function (j) {
+      if (!j.ok && LK.umumkan) LK.umumkan("Progres belum tersimpan. Periksa koneksi lalu coba lagi.");
+    });
+  }
 
   /* ---------- Modul ---------- */
   LK.modul = function (n) { return D.modul[n - 1]; };
@@ -68,7 +142,7 @@ window.LK = window.LK || {};
   LK.langkahModul = function (n) { return Math.min(LK.progres(n).langkah || 0, 3); };
   LK.setLangkah = function (n, l) {
     var p = LK.sesi.progres[n] || (LK.sesi.progres[n] = { langkah: 0 });
-    if ((p.langkah || 0) < l) p.langkah = l;
+    if ((p.langkah || 0) < l) { p.langkah = l; kirimProgres("/progres/" + n + "/langkah", { langkah: l }); }
     LK.simpanSesi();
   };
   LK.penggunaBaru = function () {
@@ -91,6 +165,8 @@ window.LK = window.LK || {};
     if (p.terbaik === undefined || benar / total > p.terbaik / (p.total || total)) p.terbaik = benar;
     var lulus = benar / total >= 0.7;
     if (lulus) p.langkah = 3; else if ((p.langkah || 0) < 2) p.langkah = 2;
+    if (LK.server) LK.sesi.perluDiulang = hitungPerluDiulang(LK.sesi.progres);
+    kirimProgres("/progres/" + n + "/kuis", { benar: benar, total: total });
     LK.simpanSesi();
     return { lulus: lulus, baruLulus: lulus && !lulusSebelumnya };
   };

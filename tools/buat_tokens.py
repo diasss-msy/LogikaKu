@@ -1,6 +1,6 @@
-"""Membuat css/tokens.css dari design/tokens.json.
+"""Membuat public/css/tokens.css dari design/tokens.json.
 
-Website tidak butuh langkah build: css/tokens.css sudah ikut di repo.
+Website tidak butuh langkah build: public/css/tokens.css sudah ikut di repo.
 Jalankan skrip ini hanya kalau design/tokens.json berubah:
 
     python3 tools/buat_tokens.py
@@ -90,8 +90,8 @@ def main():
     bagian.append(
         f'@media (prefers-color-scheme: dark) {{\n  :root:not([data-theme="light"]) {{\n  {gelap_media}\n    color-scheme: dark;\n  }}\n}}'
     )
-    (AKAR / "css" / "tokens.css").write_text("\n".join(bagian) + "\n", encoding="utf-8")
-    print("css/tokens.css diperbarui")
+    (AKAR / "public" / "css" / "tokens.css").write_text("\n".join(bagian) + "\n", encoding="utf-8")
+    print("public/css/tokens.css diperbarui")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 /* Layar 11 Landing, 12a/12b/12c Masuk dan Daftar, 13a/13b/13c Lupa kata sandi.
- * Validasi hanya di sisi klien. Tidak ada akun sungguhan dan kata sandi tidak disimpan. */
+ * Mode server: formulir dikirim ke Laravel (LK.api). Mode demo: hanya validasi di klien,
+ * tidak ada akun sungguhan. Kata sandi tidak pernah disimpan di browser. */
 (function () {
   var I = LK.ikon, esc = LK.esc, K = LK.k;
   var POLA_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,6 +57,29 @@
   var aturanEmail = function (v) { return !v.trim() ? "Email belum diisi." : POLA_EMAIL.test(v.trim()) ? null : "Format email belum benar. Contoh: nama@email.com"; };
   var aturanSandiBaru = function (v) { return !v ? "Kata sandi belum diisi." : v.length < 8 ? "Kata sandi minimal 8 karakter." : null; };
 
+  /* Tampilkan galat dari server. petaKolom: nama kolom server -> id kolom formulir. */
+  LK.galatServer = function (j, a, o) {
+    a.pulihkan(o.label);
+    var galat = [];
+    Object.keys(o.petaKolom || {}).forEach(function (kunci) {
+      var pesan = LK.api.galat(j, kunci);
+      if (pesan) { a.setGalat(o.petaKolom[kunci], pesan); galat.push({ id: o.petaKolom[kunci], pesan: pesan }); }
+    });
+    if (!galat.length) {
+      var pesan = j.status === 429 ? "Terlalu sering mencoba. Tunggu sebentar lalu coba lagi."
+        : j.status === 0 ? "Belum tersambung ke server. Periksa koneksi lalu coba lagi."
+        : j.status === 419 ? "Halaman sudah terlalu lama terbuka. Muat ulang halaman lalu coba lagi."
+        : (j.data && j.data.message) || "Ada yang salah di server. Coba lagi sebentar lagi.";
+      galat.push({ id: o.fokus, pesan: pesan });
+    }
+    a.ringkas(o.judul, galat);
+  };
+  function tombolGoogle(label) {
+    /* Masuk dengan Google belum tersambung ke server, jadi hanya muncul di mode demo. */
+    return LK.server ? "" : K.tombol({ label: label, varian: "secondary", penuh: true, aksi: "google" }) +
+      '<div class="pemisah" role="separator"><span>atau</span></div>';
+  }
+
   /* ---------- Kerangka layar akun ---------- */
   function rangkaianMini() {
     var nama = ["Proposisi", "Operator", "Implikasi", "Tabel", "Ekuivalen"], led = "", kabel = "";
@@ -92,8 +116,8 @@
       K.kolom({ id: "sandi", label: "Kata sandi", type: "password", autocomplete: "current-password", placeholder: "Kata sandimu", galat: gagal ? "Kata sandi belum cocok. Huruf besar dan kecil dibedakan." : "" }) +
       '<p class="kanan"><a class="tautan" href="#/lupa-sandi">Lupa kata sandi?</a></p>' +
       K.tombol({ label: "Masuk", type: "submit", penuh: true }) + "</form>" +
-      '<div class="pemisah" role="separator"><span>atau</span></div>' +
-      K.tombol({ label: "Lanjut dengan Google", varian: "secondary", penuh: true, aksi: "google" }) +
+      (LK.server ? "" : '<div class="pemisah" role="separator"><span>atau</span></div>' +
+        K.tombol({ label: "Lanjut dengan Google", varian: "secondary", penuh: true, aksi: "google" })) +
       '<p class="tengah">Belum punya akun? <a class="tautan" href="#/daftar">Daftar</a></p>';
     return layarAkun({
       judul: gagal ? "Masuk gagal" : "Masuk", kembali: "#/landing", html: html,
@@ -103,7 +127,15 @@
           judulGalat: "Belum bisa masuk",
           aturan: { email: aturanEmail, sandi: wajib("Kata sandi") },
           kirim: function (v, a) {
-            /* Prototype: kata sandi pendek dianggap salah, untuk memperlihatkan state 12c. */
+            if (LK.server) {
+              LK.api.kirim("POST", "/masuk", { email: v.email.trim(), sandi: v.sandi }).then(function (j) {
+                if (j.ok) { LK.terimaSesi(j.data.akun); LK.buka("#/beranda"); return; }
+                LK.galatServer(j, a, { label: "Masuk", judul: "Belum bisa masuk", fokus: "sandi", petaKolom: { email: "email", sandi: "sandi" } });
+                el.querySelector("#sandi").value = "";
+              });
+              return;
+            }
+            /* Mode demo: kata sandi pendek dianggap salah, untuk memperlihatkan state 12c. */
             if (v.sandi.length < 8) {
               a.pulihkan("Masuk");
               a.setGalat("sandi", "Kata sandi belum cocok. Huruf besar dan kecil dibedakan.");
@@ -116,7 +148,8 @@
         });
         form.querySelectorAll("[data-ke]").forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); el.querySelector("#sandi").focus(); }); });
         if (gagal) form.querySelector(".ringkasan-galat").focus();
-        el.querySelector('[data-aksi="google"]').addEventListener("click", function () { LK.masukSebagaiDimas(); LK.buka("#/beranda"); });
+        var g = el.querySelector('[data-aksi="google"]');
+        if (g) g.addEventListener("click", function () { LK.masukSebagaiDimas(); LK.buka("#/beranda"); });
         void f;
       }
     });
@@ -124,9 +157,7 @@
 
   /* ---------- 12b Daftar ---------- */
   LK.rute("/daftar", function () {
-    var html = "<h1>Daftar</h1><p class=\"redup\">Gratis. Progresmu tersimpan di akun.</p>" +
-      K.tombol({ label: "Daftar dengan Google", varian: "secondary", penuh: true, aksi: "google" }) +
-      '<div class="pemisah" role="separator"><span>atau</span></div>' +
+    var html = "<h1>Daftar</h1><p class=\"redup\">Gratis. Progresmu tersimpan di akun.</p>" + tombolGoogle("Daftar dengan Google") +
       '<form class="tumpuk" novalidate>' +
       K.kolom({ id: "nama", label: "Nama panggilan", autocomplete: "nickname", placeholder: "Misalnya Dimas", maxlength: 20, bantuan: "Muncul di sapaan Beranda. Maksimal 20 karakter." }) +
       K.kolom({ id: "email", label: "Email", type: "email", autocomplete: "email", placeholder: "nama@email.com" }) +
@@ -142,9 +173,16 @@
             nama: function (v) { return !v.trim() ? "Nama panggilan belum diisi." : v.trim().length > 20 ? "Nama panggilan maksimal 20 karakter." : null; },
             email: aturanEmail, sandi: aturanSandiBaru
           },
-          kirim: function (v) { LK.daftarBaru(v.nama.trim(), v.email.trim()); LK.buka("#/beranda"); }
+          kirim: function (v, a) {
+            if (!LK.server) { LK.daftarBaru(v.nama.trim(), v.email.trim()); LK.buka("#/beranda"); return; }
+            LK.api.kirim("POST", "/daftar", { nama: v.nama.trim(), email: v.email.trim(), sandi: v.sandi }).then(function (j) {
+              if (j.ok) { LK.terimaSesi(j.data.akun); LK.buka("#/beranda"); return; }
+              LK.galatServer(j, a, { label: "Daftar dan Mulai Belajar", judul: "Ada yang perlu diperbaiki", fokus: "email", petaKolom: { nama: "nama", email: "email", sandi: "sandi" } });
+            });
+          }
         });
-        el.querySelector('[data-aksi="google"]').addEventListener("click", function () { LK.daftarBaru("Teman", ""); LK.buka("#/beranda"); });
+        var g = el.querySelector('[data-aksi="google"]');
+        if (g) g.addEventListener("click", function () { LK.daftarBaru("Teman", ""); LK.buka("#/beranda"); });
         el.querySelector("#email").focus();
       }
     });
@@ -160,7 +198,17 @@
     return layarAkun({
       judul: "Lupa kata sandi", kembali: "#/masuk", html: html,
       pasang: function (el) {
-        LK.form(el.querySelector("form"), { aturan: { email: aturanEmail }, kirim: function (v) { emailLupa = v.email.trim(); LK.buka("#/cek-email"); } });
+        LK.form(el.querySelector("form"), {
+          aturan: { email: aturanEmail },
+          kirim: function (v, a) {
+            emailLupa = v.email.trim();
+            if (!LK.server) { LK.buka("#/cek-email"); return; }
+            LK.api.kirim("POST", "/lupa-sandi", { email: emailLupa }).then(function (j) {
+              if (j.ok) { LK.buka("#/cek-email"); return; }
+              LK.galatServer(j, a, { label: "Kirim tautan", judul: "Tautan belum terkirim", fokus: "email", petaKolom: { email: "email" } });
+            });
+          }
+        });
       }
     });
   });
@@ -171,8 +219,8 @@
     var html = '<span class="petak-ikon" aria-hidden="true">' + I("mail", "ikon-lg") + "</span><h1>Cek emailmu</h1>" +
       "<p>Kami sudah mengirim tautan ke <strong>" + esc(emailLupa || "emailmu") + "</strong>. Tautannya berlaku 30 menit.</p>" +
       '<p class="redup">Tidak ada di kotak masuk? Cek folder Spam.</p>' +
-      K.tombol({ label: "Buka aplikasi email", penuh: true, href: "#/sandi-baru" }) +
-      '<p class="caption">Di prototype ini, tombol di atas meniru klik tautan di email.</p>' +
+      (LK.server ? "" : K.tombol({ label: "Buka aplikasi email", penuh: true, href: "#/sandi-baru" }) +
+        '<p class="caption">Di mode demo, tombol di atas meniru klik tautan di email.</p>') +
       K.tombol({ label: "Kirim ulang dalam 0:45", varian: "secondary", penuh: true, nonaktif: true, id: "kirim-ulang", syaratId: "syarat-ulang" }) +
       '<p class="syarat" id="syarat-ulang">Aktif setelah hitungan selesai.</p>' +
       '<p class="tengah"><a class="tautan" href="#/masuk">Kembali ke Masuk</a></p>';
@@ -189,15 +237,27 @@
             btn.querySelector("span").textContent = "Kirim ulang dalam 0:" + (sisa < 10 ? "0" : "") + sisa;
           }, 1000);
         }
-        btn.addEventListener("click", function () { LK.umumkan("Tautan baru sudah dikirim."); mulai(); });
+        btn.addEventListener("click", function () {
+          if (LK.server && emailLupa) LK.api.kirim("POST", "/lupa-sandi", { email: emailLupa });
+          LK.umumkan("Tautan baru sudah dikirim."); mulai();
+        });
         mulai();
       }
     });
   });
 
   /* ---------- 13c Kata sandi baru ---------- */
-  LK.rute("/sandi-baru", function () {
-    var html = "<h1>Buat kata sandi baru</h1><p class=\"redup\">Pakai kata sandi yang belum pernah kamu pakai di sini.</p>" +
+  LK.rute("/sandi-baru", function (ctx) {
+    var token = ctx.q.token, email = ctx.q.email;
+    if (LK.server && (!token || !email)) {
+      return layarAkun({
+        judul: "Tautan tidak lengkap", kembali: "#/masuk",
+        html: '<span class="petak-ikon" aria-hidden="true">' + I("alert-circle", "ikon-lg") + "</span><h1>Tautan tidak lengkap</h1>" +
+          '<p class="redup">Buka tautan dari email persis seperti yang dikirim, atau minta tautan baru.</p>' +
+          K.tombol({ label: "Minta tautan baru", penuh: true, href: "#/lupa-sandi" })
+      });
+    }
+    var html = "<h1>Buat kata sandi baru</h1><p class=\"redup\">" + (LK.server ? "Untuk akun " + esc(email) + "." : "Pakai kata sandi yang belum pernah kamu pakai di sini.") + "</p>" +
       '<form class="tumpuk" novalidate>' +
       K.kolom({ id: "baru", label: "Kata sandi baru", type: "password", autocomplete: "new-password", bantuan: "Minimal 8 karakter." }) +
       K.kolom({ id: "ulang", label: "Ulangi kata sandi baru", type: "password", autocomplete: "new-password" }) +
@@ -207,7 +267,14 @@
       pasang: function (el) {
         LK.form(el.querySelector("form"), {
           aturan: { baru: aturanSandiBaru, ulang: function (v, s) { return !v ? "Ulangi kata sandi baru." : v !== s.baru ? "Kata sandi belum sama dengan yang di atas." : null; } },
-          kirim: function () { LK.buka("#/masuk"); setTimeout(function () { LK.umumkan("Kata sandi baru tersimpan. Silakan masuk."); }, 300); }
+          kirim: function (v, a) {
+            function selesai() { LK.buka("#/masuk"); setTimeout(function () { LK.umumkan("Kata sandi baru tersimpan. Silakan masuk."); }, 300); }
+            if (!LK.server) { selesai(); return; }
+            LK.api.kirim("POST", "/sandi-baru", { token: token, email: email, sandi: v.baru }).then(function (j) {
+              if (j.ok) { selesai(); return; }
+              LK.galatServer(j, a, { label: "Simpan kata sandi", judul: "Kata sandi belum diganti", fokus: "baru", petaKolom: { sandi: "baru", email: "baru" } });
+            });
+          }
         });
       }
     });

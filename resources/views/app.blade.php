@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LogikaKu</title>
   <meta name="description" content="Media belajar logika dan algoritma untuk siswa SMK kelas X TKJ dan RPL.">
+  {{-- Dua baris bertanda "mode-server" dibuang saat membuat versi demo statis (lihat .github/workflows/pages.yml). --}}
+  <meta name="lk-api" content="{{ url('/api') }}"><!-- mode-server -->
+  <meta name="csrf-token" content="{{ csrf_token() }}"><!-- mode-server -->
   <meta name="theme-color" content="#F3F6F4" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0F1A17" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314213D'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='%23FFC233'%3EL%3C/text%3E%3C/svg%3E">
