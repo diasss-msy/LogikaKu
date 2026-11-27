@@ -136,7 +136,7 @@
   font-family: var(--font-mono); font-size: var(--fs-code); line-height: 2;
   overflow-x: auto; white-space: pre;
 }
-:root[data-theme="dark"] .blok-kode { background: var(--gelap-neutral-900); border: 1px solid var(--color-border); }
+:root[data-theme="dark"] .blok-kode { background: var(--color-neutral-900); border: 1px solid var(--color-border); }
 
 /* ---------- Ekspresi ---------- */
 .ekspresi {
@@ -329,7 +329,7 @@ button.sel:active:not(:disabled) { transform: scale(0.98); }
 .setel + .setel { border-top: var(--border-thin) solid var(--color-border); }
 .setel-baris { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 48px; }
 a.setel, button.setel { width: 100%; background: none; border: 0; text-align: left; color: var(--color-text); text-decoration: none; flex-direction: row; align-items: center; justify-content: space-between; }
-a.setel:hover, button.setel:hover { background: var(--color-neutral-50); }
+a.setel:hover, button.setel:hover { background: var(--color-muted); }
 .setel .bahaya { color: var(--color-error-strong); }
 
 /* ---------- Modal ---------- */

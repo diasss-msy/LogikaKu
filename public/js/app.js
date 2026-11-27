@@ -84,7 +84,7 @@ window.LK = window.LK || {};
     return tutup;
   };
 
-  /* Perbarui semua tombol tema dan pilihan "Mode warna" di Profil tanpa memuat ulang layar,
+  /* Perbarui semua tombol tema dan pilihan "Mode warna" di Pengaturan tanpa memuat ulang layar,
    * supaya fokus keyboard tetap di tombol yang baru ditekan. */
   LK.segarkanTombolTema = function () {
     document.querySelectorAll('[data-aksi="ganti-tema"]').forEach(function (b) {
@@ -121,7 +121,8 @@ window.LK = window.LK || {};
       });
     });
     h += '<p class="side-grup">Lainnya</p>' + sideItem("#/rekap", "bar-chart", "Rekap Skor", aktif === "rekap") +
-      sideItem("#/profil", "user", "Profil", aktif === "profil") + "</nav>";
+      sideItem("#/profil", "user", "Profil", aktif === "profil") +
+      sideItem("#/pengaturan", "settings", "Pengaturan", aktif === "pengaturan") + "</nav>";
     return h;
   }
   function sideItem(href, ikon, label, on) {
@@ -197,6 +198,36 @@ window.LK = window.LK || {};
     tampilkan(LK.layar.tidakAda(), pertama);
     pertama = false;
   }
+  /* Bingkai clip-path untuk tema yang menjalar dari tombol. Gaya:
+   * "gelombang" = lingkaran bertepi gelombang halus yang berputar pelan (bawaan),
+   * "lingkaran" = lingkaran mulus, "sapu" = sapuan miring dari sudut tombol ke sudut seberang. */
+  LK.gayaTema = "gelombang";
+  LK.bingkaiTema = function (x, y, jari) {
+    var g = LK.gayaTema, bingkai = [], N = 30;
+    if (g === "lingkaran") {
+      return [{ clipPath: "circle(0px at " + x + "px " + y + "px)" }, { clipPath: "circle(" + jari + "px at " + x + "px " + y + "px)" }];
+    }
+    if (g === "sapu") {
+      var W = window.innerWidth, H = window.innerHeight, kiri = x < W / 2, atas = y < H / 2;
+      for (var f = 0; f <= N; f++) {
+        var t = f / N, d = (W + H) * 1.05 * t;
+        var cx = kiri ? 0 : W, cy = atas ? 0 : H, sx = kiri ? 1 : -1, sy = atas ? 1 : -1;
+        bingkai.push({ clipPath: "polygon(" + cx + "px " + cy + "px," + (cx + sx * d) + "px " + cy + "px," + cx + "px " + (cy + sy * d) + "px)", offset: t });
+      }
+      return bingkai;
+    }
+    var T = 96, gel = 7, fase = Math.random() * Math.PI * 2;
+    for (var f2 = 0; f2 <= N; f2++) {
+      var t2 = f2 / N, r = jari * 1.12 * t2, amp = r * 0.07 * Math.sin(Math.PI * Math.min(1, t2 * 1.15)), titik = [];
+      for (var i = 0; i < T; i++) {
+        var a = (i / T) * Math.PI * 2;
+        var rr = r + amp * (Math.sin(a * gel + fase + t2 * 5) * 0.7 + Math.sin(a * 3 - t2 * 4) * 0.3);
+        titik.push((x + Math.cos(a) * rr).toFixed(1) + "px " + (y + Math.sin(a) * rr).toFixed(1) + "px");
+      }
+      bingkai.push({ clipPath: "polygon(" + titik.join(",") + ")", offset: t2 });
+    }
+    return bingkai;
+  };
   LK.muatUlang = arahkan;
   LK.buka = function (hash) { if (location.hash === hash) arahkan(); else location.hash = hash; };
   LK.gantiHashDiam = function (hash) { try { history.replaceState(null, "", hash); } catch (e) { /* abaikan */ } };
@@ -209,12 +240,28 @@ window.LK = window.LK || {};
       if (tema) {
         var baru = LK.temaAktif() === "gelap" ? "terang" : "gelap";
         var r = document.documentElement;
-        r.classList.add("ganti-tema");
-        clearTimeout(LK._temaT);
-        LK._temaT = setTimeout(function () { r.classList.remove("ganti-tema"); }, 400);
-        LK.ubahPref("tema", baru);
-        LK.segarkanTombolTema();
-        document.querySelectorAll('[data-aksi="ganti-tema"] .ikon').forEach(function (i) { i.classList.add("putar-masuk"); });
+        var terapkan = function () {
+          LK.ubahPref("tema", baru);
+          LK.segarkanTombolTema();
+          document.querySelectorAll('[data-aksi="ganti-tema"] .ikon').forEach(function (i) { i.classList.add("putar-masuk"); });
+        };
+        if (document.startViewTransition && !LK.kurangiGerak()) {
+          /* Warna baru menjalar sebagai lingkaran dari tombol yang dipencet sampai ujung layar terjauh. */
+          var kotak = tema.getBoundingClientRect();
+          var x = kotak.left + kotak.width / 2, y = kotak.top + kotak.height / 2;
+          var jari = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+          r.classList.add("tema-menjalar");
+          var vt = document.startViewTransition(terapkan);
+          vt.ready.then(function () {
+            r.animate(LK.bingkaiTema(x, y, jari), { duration: 800, easing: LK.gayaTema === "lingkaran" ? "cubic-bezier(0.65, 0, 0.35, 1)" : "cubic-bezier(0.45, 0, 0.25, 1)", pseudoElement: "::view-transition-new(root)" });
+          }).catch(function () { /* abaikan */ });
+          vt.finished.then(function () { r.classList.remove("tema-menjalar"); }, function () { r.classList.remove("tema-menjalar"); });
+        } else {
+          r.classList.add("ganti-tema");
+          clearTimeout(LK._temaT);
+          LK._temaT = setTimeout(function () { r.classList.remove("ganti-tema"); }, 400);
+          terapkan();
+        }
         LK.umumkan("Mode " + baru + " aktif.");
         return;
       }

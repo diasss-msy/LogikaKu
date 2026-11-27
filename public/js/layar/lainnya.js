@@ -62,27 +62,57 @@
       }
     });
   }
+  /* ---------- 14 Profil: siapa kamu, perjalanan belajar, dan akun ---------- */
   LK.rute("/profil", function (ctx) {
     var inisial = (LK.sesi.nama || "?").trim().charAt(0).toUpperCase();
-    var html = '<div class="tengah-720 tumpuk profil"><h1 class="judul-display">Profil dan Pengaturan</h1>' +
-      '<section class="kartu kartu-xl baris-antara kartu-profil" aria-label="Profil"><div class="baris"><span class="avatar besar" aria-hidden="true">' + esc(inisial) + "</span>" +
-      '<div><p class="h3-like">' + esc(LK.sesi.nama) + '</p><p class="caption email">' + esc(LK.sesi.email || "Belum ada email") + "</p></div></div>" +
-      K.tombol({ label: "Ubah", varian: "secondary", aksi: "ubah" }) + "</section>" +
-      '<section class="tumpuk" aria-labelledby="judul-tampilan"><h2 id="judul-tampilan">Tampilan</h2><div class="daftar-setel">' +
-      '<div class="setel"><p class="label" id="lbl-mode">Mode warna</p>' + K.segmen("tema", "Mode warna", [{ nilai: "terang", label: "Terang" }, { nilai: "gelap", label: "Gelap" }, { nilai: "otomatis", label: "Otomatis" }], LK.pref.tema) +
-      '<p class="caption">Otomatis mengikuti pengaturan perangkatmu.</p></div>' +
-      '<div class="setel"><p class="label">Ukuran teks</p>' + K.segmen("teks", "Ukuran teks", [{ nilai: "normal", label: "Normal" }, { nilai: "besar", label: "Besar" }], LK.pref.teks) + "</div>" +
-      '<div class="setel"><div class="setel-baris"><div><p class="label" id="lbl-gerak">Kurangi animasi</p><p class="caption" id="gerak-ket">Kabel langsung menyala tanpa animasi arus.</p></div>' +
-      '<button type="button" class="saklar" role="switch" id="saklar-gerak" aria-labelledby="lbl-gerak" aria-describedby="gerak-ket" aria-checked="' + (LK.pref.gerak === "kurang") + '"><span class="saklar-pil" aria-hidden="true"></span><span class="saklar-huruf" aria-hidden="true">' + (LK.pref.gerak === "kurang" ? "T" : "F") + "</span></button></div></div>" +
-      "</div></section>" +
-      '<section class="tumpuk" aria-labelledby="judul-akun"><h2 id="judul-akun">Akun</h2><div class="daftar-setel">' +
-      '<a class="setel" href="#/profil/ganti-sandi"><span class="label">Ganti kata sandi</span>' + I("chevron-right") + "</a>" +
+    var r = LK.ringkasan(), total = LK.data.modul.length;
+    var html = '<div class="halaman-panel profil">' +
+      '<section class="p-panel profil-kepala" aria-labelledby="nama-profil"><div class="profil-sampul" aria-hidden="true"></div>' +
+      '<div class="profil-isi"><span class="avatar profil-avatar" aria-hidden="true">' + esc(inisial) + "</span>" +
+      '<div class="profil-nama"><p class="caption">Profil</p><h1 id="nama-profil">' + esc(LK.sesi.nama) + '</h1><p class="redup email">' + esc(LK.sesi.email || "Belum ada email") + "</p></div>" +
+      '<div class="profil-aksi">' + K.tombol({ label: "Ubah profil", varian: "secondary", aksi: "ubah" }) + "</div></div></section>" +
+      '<section class="p-panel" aria-labelledby="judul-perjalanan">' +
+      K.kepalaPanel("bar-chart", "judul-perjalanan", "Perjalanan belajar", "Ringkasan progresmu sejauh ini", K.tautan("#/rekap", "Lihat rekap skor")) +
+      '<div class="ringkasan profil-angka">' +
+      '<div class="kotak-angka"><strong>' + r.selesai + "/" + total + "</strong><span>Modul selesai</span></div>" +
+      '<div class="kotak-angka"><strong>' + r.lencana + "</strong><span>Lencana</span></div>" +
+      '<div class="kotak-angka"><strong>' + (r.rata === null ? "–" : r.rata) + "</strong><span>Rata-rata skor</span></div></div>" +
+      '<div class="p-kotak">' + K.progresBar((r.selesai / total) * 100, r.selesai + " dari " + total + " modul", "Progres seluruh modul") + "</div></section>" +
+      '<section class="p-panel" aria-labelledby="judul-akun">' + K.kepalaPanel("lock", "judul-akun", "Akun", "Keamanan dan sesi masuk") +
+      '<div class="daftar-setel">' +
+      '<a class="setel" href="#/profil/ganti-sandi"><span><span class="label">Ganti kata sandi</span><span class="caption" style="display:block">Perbarui kata sandi untuk masuk.</span></span>' + I("chevron-right") + "</a>" +
+      '<a class="setel" href="#/pengaturan"><span><span class="label">Pengaturan tampilan</span><span class="caption" style="display:block">Mode warna, ukuran teks, dan animasi.</span></span>' + I("chevron-right") + "</a>" +
       '<button type="button" class="setel" data-aksi="keluar"><span><span class="label bahaya">Keluar</span><span class="caption" style="display:block">Progresmu tetap tersimpan di akun.</span></span><span class="bahaya">' + I("log-out") + "</span></button>" +
       "</div></section></div>";
     return {
       judul: "Profil", aktif: "profil", topbar: { judul: "Profil", kembali: "#/beranda" }, html: html,
       pasang: function (el) {
-        K.pasangSegmen(el, "tema", function (v) { LK.ubahPref("tema", v); LK.umumkan("Mode warna: " + v + "."); });
+        el.querySelector('[data-aksi="keluar"]').addEventListener("click", bukaKeluar);
+        el.querySelector('[data-aksi="ubah"]').addEventListener("click", function () { LK.umumkan("Mengubah profil tersedia di tahap 2."); });
+        if (ctx.q.keluar) bukaKeluar();
+      }
+    };
+  });
+
+  /* ---------- 14c Pengaturan: tampilan dan gerak ---------- */
+  LK.rute("/pengaturan", function () {
+    var html = '<div class="halaman-panel pengaturan">' +
+      '<div class="sapaan"><h1 class="judul-display">Pengaturan</h1><p class="teks-lg redup">Atur tampilan LogikaKu supaya nyaman dipakai belajar.</p></div>' +
+      '<section class="p-panel" aria-labelledby="judul-tampilan">' + K.kepalaPanel("sun", "judul-tampilan", "Tampilan", "Warna dan ukuran teks") +
+      '<div class="daftar-atur">' +
+      '<div class="atur"><div class="atur-teks"><p class="label" id="lbl-mode">Mode warna</p><p class="caption">Otomatis mengikuti pengaturan perangkatmu.</p></div>' +
+      '<div class="atur-kendali">' + K.segmen("tema", "Mode warna", [{ nilai: "terang", label: "Terang" }, { nilai: "gelap", label: "Gelap" }, { nilai: "otomatis", label: "Otomatis" }], LK.pref.tema) + "</div></div>" +
+      '<div class="atur"><div class="atur-teks"><p class="label">Ukuran teks</p><p class="caption">Teks besar memperbesar semua tulisan sekitar 12%.</p></div>' +
+      '<div class="atur-kendali">' + K.segmen("teks", "Ukuran teks", [{ nilai: "normal", label: "Normal" }, { nilai: "besar", label: "Besar" }], LK.pref.teks) + "</div></div>" +
+      "</div></section>" +
+      '<section class="p-panel" aria-labelledby="judul-gerak">' + K.kepalaPanel("lightbulb", "judul-gerak", "Gerak", "Animasi di seluruh aplikasi") +
+      '<div class="daftar-atur"><div class="atur"><div class="atur-teks"><p class="label" id="lbl-gerak">Kurangi animasi</p><p class="caption" id="gerak-ket">Kabel langsung menyala tanpa animasi arus.</p></div>' +
+      '<div class="atur-kendali"><button type="button" class="saklar" role="switch" id="saklar-gerak" aria-labelledby="lbl-gerak" aria-describedby="gerak-ket" aria-checked="' + (LK.pref.gerak === "kurang") + '"><span class="saklar-pil" aria-hidden="true"></span><span class="saklar-huruf" aria-hidden="true">' + (LK.pref.gerak === "kurang" ? "T" : "F") + "</span></button></div></div></div></section>" +
+      "</div>";
+    return {
+      judul: "Pengaturan", aktif: "pengaturan", topbar: { judul: "Pengaturan", kembali: "#/profil" }, html: html,
+      pasang: function (el) {
+        K.pasangSegmen(el, "tema", function (v) { LK.ubahPref("tema", v); LK.segarkanTombolTema(); LK.umumkan("Mode warna: " + v + "."); });
         K.pasangSegmen(el, "teks", function (v) { LK.ubahPref("teks", v); });
         var sg = el.querySelector("#saklar-gerak");
         sg.addEventListener("click", function () {
@@ -90,9 +120,6 @@
           sg.setAttribute("aria-checked", on); sg.querySelector(".saklar-huruf").textContent = on ? "T" : "F";
           LK.ubahPref("gerak", on ? "kurang" : "normal");
         });
-        el.querySelector('[data-aksi="keluar"]').addEventListener("click", bukaKeluar);
-        el.querySelector('[data-aksi="ubah"]').addEventListener("click", function () { LK.umumkan("Mengubah profil tersedia di tahap 2."); });
-        if (ctx.q.keluar) bukaKeluar();
       }
     };
   });
@@ -156,7 +183,7 @@
     ["05d-hasil-lulus", "Hasil lulus", "#/modul/4/hasil?demo=lulus"], ["05e-hasil-belum-lulus", "Hasil belum lulus", "#/modul/4/hasil?demo=belum"], ["06-lencana", "Modal lencana", "#/modul/4/hasil?demo=lulus&lencana"],
     ["07-rekap", "Rekap skor", "#/rekap"], ["08-pseudocode", "Penelusur pseudocode", "#/modul/8/latihan?paksa&demo"], ["09-gerbang", "Lab gerbang logika", "#/modul/2/latihan"],
     ["10a-kosong-rekap", "Rekap kosong", "#/rekap?kosong"], ["10b-error-materi", "Materi gagal dimuat", "#/modul/4/materi?gagal"], ["10c-offline-beranda", "Beranda offline", "#/beranda?offline"], ["10d-memuat-beranda", "Memuat beranda", "#/beranda?memuat"],
-    ["14-profil", "Profil dan pengaturan", "#/profil"], ["14b-keluar", "Konfirmasi keluar", "#/profil?keluar"],
+    ["14-profil", "Profil", "#/profil"], ["14b-keluar", "Konfirmasi keluar", "#/profil?keluar"], ["14c-pengaturan", "Pengaturan", "#/pengaturan"],
     ["15-latihan-proposisi", "Latihan proposisi", "#/modul/1/latihan"], ["15b-latihan-proposisi-benar", "Latihan proposisi benar", "#/modul/1/latihan?demo=benar"],
     ["16-latihan-implikasi", "Latihan implikasi", "#/modul/3/latihan"], ["17-latihan-ekuivalensi", "Latihan ekuivalensi", "#/modul/5/latihan?paksa"], ["18-latihan-komputasi", "Latihan berpikir komputasional", "#/modul/6/latihan?paksa"],
     ["19-latihan-percabangan", "Latihan percabangan", "#/modul/9/latihan?paksa"], ["20-latihan-perulangan", "Latihan perulangan", "#/modul/10/latihan?paksa"],

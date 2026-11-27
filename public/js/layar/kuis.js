@@ -53,10 +53,9 @@
             (s.pilih === null ? '<p class="syarat" id="syarat-kuis">Aktif setelah kamu memilih jawaban.</p>' : "")) + "</div></div>";
     }
 
-    var k = LK.kerangkaModul(n, 3, "Kuis", '<div class="tengah-720 tumpuk"><div class="langkah-tengah"></div><div id="kuis"></div></div>', {
-      tutup: true, tanpaLangkah: true, kelasIsi: "isi-kuis",
+    var k = LK.kerangkaModul(n, 3, "Kuis", '<div class="tengah-720 tumpuk"><div id="kuis"></div></div>', {
+      tutup: true, kelasIsi: "isi-kuis",
       pasang: function (el) {
-        el.querySelector(".langkah-tengah").innerHTML = K.langkah(3);
         var w = el.querySelector("#kuis");
         function g() {
           var a = document.activeElement, kunci = a && w.contains(a) ? a.getAttribute("data-f") : null;
@@ -136,7 +135,8 @@
     if (!h) return { alih: "#/modul/" + n + "/kuis" };
     var nilai = Math.round((h.benar / h.total) * 100), batas = Math.ceil(h.total * 0.7), next = n < 10 ? LK.modul(n + 1) : null;
     var offline = navigator.onLine === false;
-    var html = '<div class="tengah-720 tumpuk"><div class="langkah-tengah">' + K.langkah(3) + '</div><div class="kartu kartu-xl tumpuk hasil">';
+    var buka = LK.bungkusModul(n, 3, "@@ISI@@").split("@@ISI@@");
+    var html = buka[0] + '<div class="tengah-720 tumpuk"><div class="kartu kartu-xl tumpuk hasil">';
     if (h.lulus) {
       html += '<h1 class="judul-display">' + (next ? "Lulus! Modul " + (n + 1) + " terbuka." : "Lulus! Semua modul selesai.") + "</h1>" +
         "<h2>" + h.benar + " dari " + h.total + " soal benar</h2>" + deretLed(h.benar, h.total) +
@@ -163,11 +163,12 @@
         '<div class="deret-tombol">' + K.tombol({ label: "Ulangi Kuis", href: "#/modul/" + n + "/kuis" }) + K.tombol({ label: "Pelajari lagi bagian yang salah", varian: "secondary", href: "#/modul/" + n + "/materi" }) + "</div>" +
         '<p class="caption">Kuis boleh diulang berapa kali pun. Nilai terbaikmu yang disimpan.</p>';
     }
-    html += "</div></div>";
+    html += "</div></div>" + buka[1];
     return {
       judul: h.lulus ? "Lulus" : "Belum lulus", aktif: "modul-" + n, kelasIsi: "isi-kuis",
       topbar: { judul: "Hasil Kuis Modul " + n, kembali: "#/beranda" }, html: html,
       pasang: function (el) {
+        LK.gerakModul(el);
         var b = el.querySelector('[data-aksi="bahas"]');
         if (b) b.addEventListener("click", function () { var p = el.querySelector("#pembahasan"); p.hidden = !p.hidden; b.setAttribute("aria-expanded", !p.hidden); });
         var l = el.querySelector('[data-aksi="lencana"]');

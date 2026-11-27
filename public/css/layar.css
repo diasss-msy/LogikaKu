@@ -37,8 +37,71 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 }
 @media (min-width: 1024px) { .beranda-atas { gap: var(--space-5); } }
 .judul-kartu-lanjut { font-size: var(--fs-h2); }
+
+/* ---------- Beranda: gaya panel (elemen sama, penataan baru) ----------
+ * Tiap kelompok duduk di panel putih membulat di atas latar abu. Kepala panel: ikon, judul,
+ * keterangan, dan aksi di kanan. Isi panel memakai kotak lembut berlatar abu muda. */
+.beranda { display: flex; flex-direction: column; gap: var(--space-4); }
+.beranda > * { min-width: 0; }
+.p-panel {
+  background: var(--color-surface); border: var(--border-thin) solid var(--color-border);
+  border-radius: 24px; padding: var(--space-4);
+  display: flex; flex-direction: column; gap: var(--space-4);
+}
+.p-kepala { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-4); }
+.p-judul { display: flex; align-items: flex-start; gap: var(--space-3); min-width: 0; }
+.p-judul h2 { font-size: var(--fs-h3); }
+.p-ikon {
+  width: 36px; height: 36px; flex: none; border-radius: var(--radius-md); display: grid; place-items: center;
+  background: var(--color-background); color: var(--color-text); border: var(--border-thin) solid var(--color-border);
+}
+.p-ikon .ikon { width: 18px; height: 18px; }
+.p-aksi .segmen button { white-space: nowrap; padding-left: var(--space-4); padding-right: var(--space-4); }
+.p-kotak { background: var(--color-background); border-radius: 18px; padding: var(--space-4); }
+
+/* Panel atas: sapaan + angka + rekap */
+.b-atas { gap: var(--space-4); }
+.b-ringkasan { display: flex; flex-direction: column; gap: var(--space-3); }
+.b-ringkasan > p { margin: 0; }
+.b-ringkasan .kotak-angka { background: var(--color-background); border-color: transparent; }
+.b-rekap .tautan {
+  display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px;
+  padding: 0 var(--space-4); border: var(--border-thin) solid var(--color-border); border-radius: var(--radius-full);
+  background: var(--color-surface); text-decoration: none; font-weight: var(--weight-bold);
+}
+.b-rekap .tautan:hover { background: var(--color-background); }
+
+/* Panel rangkaian: sirkuit dan kartu lanjut */
+.b-rangkaian-isi { display: flex; flex-direction: column; gap: var(--space-4); }
+.b-sirkuit { display: flex; flex-direction: column; justify-content: center; min-height: 120px; }
+.b-lanjut > .kartu { height: 100%; background: var(--color-background); border: var(--border-thin) solid transparent; border-radius: 18px; }
+.b-lanjut > .kartu .progres { background: var(--color-surface); }
+
+/* Panel semua modul: kartu lembut dengan kaki putih */
+.b-modul .kartu-modul { background: var(--color-background); border: var(--border-thin) solid transparent; border-radius: 18px; box-shadow: none; }
+.b-modul .kartu-modul.selesai { border-color: transparent; }
+.b-modul .kartu-modul.berjalan { border-color: var(--color-led-on); }
+.b-modul .kartu-modul.terkunci { opacity: 0.72; }
+.b-modul .kartu-modul-kaki {
+  background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border: var(--border-thin) solid var(--color-border);
+}
+.b-modul .judul-bab { font-size: var(--fs-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
+
+@media (min-width: 768px) {
+  .p-panel { padding: var(--space-5); }
+}
+@media (min-width: 1024px) {
+  .beranda { gap: var(--space-5); }
+  .b-atas { flex-direction: row; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-6); }
+  .b-ringkasan { flex-direction: row; align-items: center; gap: var(--space-3); flex: none; }
+  .b-ringkasan .ringkasan { grid-template-columns: repeat(3, 120px); }
+  .b-ringkasan .kotak-angka { padding: var(--space-3) var(--space-4); }
+  .b-rangkaian-isi { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-4); }
+  .b-sirkuit { padding: var(--space-6) var(--space-5); }
+  .b-modul .grid-modul { gap: var(--space-4); }
+}
 @media (max-width: 767px) { .tombol-lanjut { width: 100%; } }
-.judul-semua { margin-top: var(--space-3); }
 .judul-bab { font-size: var(--fs-h3); }
 .segmen-bab button { min-height: 48px; }
 
@@ -211,9 +274,36 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 .cara-langkah { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-4); }
 .cara-langkah li { display: flex; flex-direction: column; gap: var(--space-2); }
 .landing-kaki {
-  margin-top: var(--space-7); padding: var(--space-5) var(--gutter-mobile); border-top: var(--border-thin) solid var(--color-border);
+  position: relative;
+  margin-top: var(--space-7); padding: calc(var(--space-5) + 40px) var(--gutter-mobile) var(--space-5); border-top: var(--border-thin) solid var(--color-border);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3);
 }
+/* Ajakan penutup di ujung landing. */
+.landing-ajak {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-3);
+  padding: var(--space-8, 96px) var(--gutter-mobile) var(--space-6); max-width: 720px; margin: 0 auto;
+}
+.landing-ajak .judul-display { margin: 0; }
+.landing-ajak .led.besar { width: 28px; height: 28px; }
+.landing-ajak .tombol { margin-top: var(--space-2); }
+.landing-ajak .tombol .ikon { transition: transform var(--dur-base) var(--ease-out); }
+@media (hover: hover) { .landing-ajak .tombol:hover .ikon { transform: translateY(-3px); } }
+
+/* Kabel hiasan di atas kaki halaman: berakhir di LED kuning. */
+.kabel-kaki { position: absolute; left: 0; right: 0; top: 4px; width: 100%; height: 40px; pointer-events: none; }
+.kabel-kaki path { fill: none; stroke: var(--color-accent-base); stroke-width: 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+/* LED di ujung kabel. Tidak di dalam SVG supaya tetap bulat walau SVG direntangkan. */
+.led-kaki { position: absolute; left: calc(100% * 1172 / 1200 - 10px); top: calc(4px + 40px * 50 / 60 - 10px); width: 20px; height: 20px; border-radius: 50%; background: var(--color-accent-base); box-shadow: 0 0 0 4px var(--color-accent-subtle); }
+
+/* Cara belajar: panel berwarna terbalik dari halaman (gelap di mode terang, terang di mode gelap). */
+.panel-balik {
+  background: var(--color-text); color: var(--color-background);
+  border-radius: 24px; margin: var(--space-7) var(--gutter-mobile) 0;
+  padding: var(--space-6) var(--space-4); max-width: none;
+}
+.panel-balik > h2 { color: var(--color-background); }
+.panel-balik .cara-langkah li { color: var(--color-text); }
+.cara-langkah { position: relative; }
 @media (min-width: 768px) {
   .grid-landing, .cara-langkah { grid-template-columns: 1fr 1fr; }
   .landing-bagian { padding-left: var(--gutter-tablet); padding-right: var(--gutter-tablet); }
@@ -222,6 +312,13 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .grid-landing { grid-template-columns: repeat(5, 1fr); }
   .cara-langkah { grid-template-columns: repeat(4, 1fr); }
   .landing-bagian, .landing-kaki { padding-left: var(--space-7); padding-right: var(--space-7); }
+  .panel-balik { margin-left: var(--space-6); margin-right: var(--space-6); padding: var(--space-7); }
+  /* Kabel kuning di belakang deret langkah, menyambung LED satu ke yang berikutnya. */
+  .panel-balik .cara-langkah::before {
+    content: ""; position: absolute; left: 6%; right: 6%; top: calc(var(--space-4) + 15px); height: 4px; border-radius: 2px;
+    background: var(--color-accent-base); transform-origin: left center; z-index: 0;
+  }
+  .panel-balik .cara-langkah li { position: relative; z-index: 1; }
 }
 
 /* ---------- Materi ---------- */
@@ -466,8 +563,42 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 .led-padam .kabel-pendek { width: 64px; }
 
 /* ---------- Profil ---------- */
-.kartu-profil { flex-wrap: wrap; }
-.kartu-profil .email { overflow-wrap: anywhere; }
+/* ---------- Profil dan Pengaturan (gaya panel seperti Beranda) ---------- */
+.halaman-panel { width: 100%; max-width: 920px; display: flex; flex-direction: column; gap: var(--space-4); }
+@media (min-width: 1024px) { .halaman-panel { gap: var(--space-5); } }
+.profil-kepala { padding: 0; overflow: hidden; gap: 0; }
+.profil-sampul {
+  height: 96px;
+  background:
+    radial-gradient(circle at 92% 50%, var(--color-led-on) 0 10px, color-mix(in srgb, var(--color-led-on) 35%, transparent) 11px 22px, transparent 23px),
+    linear-gradient(90deg, transparent 0 calc(50% - 1px), color-mix(in srgb, var(--color-primary-base) 30%, transparent) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)) 0 0 / 48px 48px,
+    linear-gradient(0deg, transparent 0 calc(50% - 1px), color-mix(in srgb, var(--color-primary-base) 30%, transparent) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)) 0 0 / 48px 48px,
+    var(--color-primary-subtle);
+}
+.profil-isi { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3) var(--space-4); padding: var(--space-3) var(--space-4) var(--space-4); }
+.profil-avatar { margin-top: -52px; align-self: flex-start; }
+.profil-aksi { align-self: center; }
+.profil-avatar { width: 88px; height: 88px; font-size: 36px; border: 4px solid var(--color-surface); }
+.profil-nama { flex: 1; min-width: 180px; }
+.profil-nama h1 { font-size: var(--fs-h1); overflow-wrap: anywhere; }
+.profil-nama .email { overflow-wrap: anywhere; }
+.profil-angka .kotak-angka { background: var(--color-background); border-color: transparent; }
+.profil .daftar-setel { border-radius: 18px; background: var(--color-background); border-color: transparent; }
+.profil .p-kotak .progres { background: var(--color-surface); }
+@media (min-width: 768px) {
+  .profil-sampul { height: 120px; }
+  .profil-isi { padding: var(--space-3) var(--space-5) var(--space-5); }
+}
+.daftar-atur { display: flex; flex-direction: column; background: var(--color-background); border-radius: 18px; }
+.atur { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); }
+.atur + .atur { border-top: var(--border-thin) solid var(--color-border); }
+.atur-teks { display: flex; flex-direction: column; gap: var(--space-1); }
+.atur .segmen { background: var(--color-surface); }
+@media (min-width: 768px) {
+  .atur { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-5); }
+  .atur-kendali { flex: none; }
+  .atur .segmen button { white-space: nowrap; padding-left: var(--space-4); padding-right: var(--space-4); }
+}
 .akun-form-sempit form { max-width: 480px; }
 
 /* ---------- Daftar layar ---------- */
@@ -481,3 +612,44 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 }
 .daftar-layar a:hover { border-color: var(--color-primary-base); }
 .daftar-layar .mono { font-size: var(--fs-caption); color: var(--color-primary-base); }
+
+/* ---------- Halaman modul: gaya panel seperti Beranda ----------
+ * Kepala panel (bab, modul, langkah) di atas; di desktop isi utama dan panel samping duduk di
+ * panel putih membulat. Di HP hanya langkah yang tampil di kepala, isi tetap polos supaya
+ * tombol navigasi bawah yang menempel tidak terganggu. */
+.hal-modul { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.modul-isi { min-width: 0; }
+.mod-kepala { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-5); }
+.mod-nama { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--fs-h3); line-height: var(--lh-heading); }
+@media (max-width: 1023px) {
+  .mod-kepala { background: transparent; border: 0; padding: 0; border-radius: 0; }
+  .mod-kepala .p-judul { display: none; }
+}
+@media (min-width: 1024px) {
+  .hal-modul { gap: var(--space-5); }
+  .mod-kepala { padding: var(--space-4) var(--space-5); }
+  .mod-kepala .langkah { background: var(--color-background); border-radius: var(--radius-full); padding: var(--space-2) var(--space-4); }
+  .modul-isi > .dua-kolom > :not(aside),
+  .modul-isi > #latihan > .dua-kolom > *,
+  .modul-isi .kartu-kuis, .modul-isi .hasil,
+  .modul-isi > .tumpuk:not(.tengah-720), .modul-isi > .keadaan {
+    background: var(--color-surface); border: var(--border-thin) solid var(--color-border);
+    border-radius: 24px; padding: var(--space-5) var(--space-6);
+  }
+  .modul-isi > .dua-kolom, .modul-isi > #latihan > .dua-kolom { align-items: start; gap: var(--space-5); }
+  .modul-isi .ilustrasi { border-radius: 24px; }
+  .modul-isi .kartu-kuis, .modul-isi .hasil { padding: var(--space-6) var(--space-7); }
+  .modul-isi .materi .nav-bawah { border-top: var(--border-thin) solid var(--color-border); padding-top: var(--space-4); margin-top: var(--space-2); }
+}
+
+/* ---------- Halaman modul: kepala sorot ----------
+ * Di desktop kepala modul jadi blok besar berwarna dengan nama modul, langkah, dan progres modul. */
+.mod-progres { display: none; }
+@media (min-width: 1024px) {
+  .tata-sorot .mod-kepala { background: var(--color-primary-subtle); border-color: transparent; padding: var(--space-6); row-gap: var(--space-4); }
+  .tata-sorot .mod-kepala .mod-nama { font-size: var(--fs-h1); font-weight: var(--weight-extrabold); }
+  .tata-sorot .mod-kepala .p-ikon { width: 48px; height: 48px; background: var(--color-surface); }
+  .tata-sorot .mod-kepala .langkah { background: var(--color-surface); }
+  .tata-sorot .mod-progres { display: block; flex-basis: 100%; }
+  .tata-sorot .mod-progres .progres { background: var(--color-surface); }
+}

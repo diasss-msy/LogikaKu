@@ -86,7 +86,7 @@ Buka `#/layar`. Halaman ini berisi tautan ke 39 layar dari desain, termasuk stat
 | `tests/Feature/` | Tes API. |
 | `public/css/tokens.css` | Variabel warna, ukuran, jarak, dan gerak. **Dibuat otomatis**, jangan diedit langsung. |
 | `public/css/dasar.css`, `komponen.css`, `layar.css` | Tata letak dasar, komponen, dan gaya per layar. Semua nilai memakai token, tanpa kode HEX. |
-| `public/css/gerak.css` | Animasi tambahan. Mati otomatis dengan "Kurangi animasi". |
+| `public/css/gerak.css` | Animasi tambahan, termasuk gerak Landing (judul muncul dari blur, kartu menyebar, isi muncul saat digulir, panel Cara belajar, kabel kaki halaman; diatur `LK.gerakLanding` di `js/layar/auth.js`). Mati otomatis dengan "Kurangi animasi". |
 | `public/data/contoh.js` | Isi belajar: 10 modul, materi, latihan, kuis, dan data contoh Dimas untuk mode demo. |
 | `public/js/status.js` | Pengaturan tampilan, sesi, progres, dan `LK.api` untuk bicara dengan Laravel. |
 | `public/js/komponen.js`, `ikon.js` | Pembuat komponen dan ikon Lucide. |
