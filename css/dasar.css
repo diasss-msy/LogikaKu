@@ -73,6 +73,8 @@ p { margin: 0; }
   .sidebar {
     display: flex; flex-direction: column; gap: var(--space-1);
     position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    /* Gulir di sidebar berhenti di ujungnya dan tidak diteruskan ke halaman. */
+    overscroll-behavior: contain;
     background: var(--color-surface);
     border-right: var(--border-thin) solid var(--color-border);
     padding: var(--space-5) var(--space-4);
@@ -130,6 +132,8 @@ p { margin: 0; }
 .side-item[aria-current="page"] { background: var(--color-primary-subtle); border-left-color: var(--color-primary-base); color: var(--color-primary-base); }
 .side-item.terkunci { color: var(--color-text-muted); }
 .side-item .ikon { color: currentColor; }
+.side-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-4); }
+.sidebar .side-kepala .logo { margin: 0 var(--space-1); }
 
 /* Masuk halaman (dissolve 200ms) */
 .layar-masuk { animation: larut var(--dur-base) var(--ease-out); }

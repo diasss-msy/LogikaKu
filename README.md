@@ -51,7 +51,8 @@ Untuk mencoba state "masuk gagal", isi kata sandi kurang dari 8 karakter di hala
 
 ## Aksesibilitas
 
-- Mode terang, gelap, dan otomatis; ukuran teks Normal atau Besar.
+- Mode terang, gelap, dan otomatis; ukuran teks Normal atau Besar. Tombol bulan/matahari di top bar, sidebar, landing, dan halaman akun langsung berganti terang atau gelap.
+- Sidebar desktop tetap di tempat saat halaman digulir, dan guliran di sidebar berhenti di ujungnya tanpa ikut menggulir halaman.
 - `prefers-reduced-motion` dan saklar "Kurangi animasi" di Profil mematikan animasi arus.
 - Latihan proposisi dan flowchart bisa diselesaikan hanya dengan ketuk (tanpa seret) dan dengan keyboard.
 - Pintasan keyboard: T/F dan panah di tabel kebenaran, A sampai D di kuis, 1 sampai 3 untuk memilih gerbang, panah di penelusur pseudocode, Esc menutup modal.

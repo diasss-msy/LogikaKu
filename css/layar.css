@@ -81,8 +81,10 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .akun-merek .led.selesai { background: var(--terang-success-base); border-color: var(--terang-success-base); color: var(--terang-primary-on); }
   .akun-merek-kaki { position: relative; }
   .logo-terang { color: var(--terang-primary-on); position: relative; }
-  .akun-topbar { display: none; }
-  .akun-kanan { justify-content: center; }
+  /* Di desktop top bar akun hanya menyisakan tombol tema di pojok kanan atas. */
+  .akun-topbar { position: absolute; top: var(--space-4); right: var(--space-5); height: auto; padding: 0; border: 0; background: transparent; }
+  .akun-topbar > :not(.tombol-tema) { display: none; }
+  .akun-kanan { justify-content: center; position: relative; }
   .akun-form { padding-top: var(--space-7); }
 }
 @media (min-width: 768px) and (max-width: 1023px) { .akun-form { padding-top: var(--space-7); } }

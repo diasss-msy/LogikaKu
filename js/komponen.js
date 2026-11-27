@@ -20,6 +20,13 @@ window.LK = window.LK || {};
     return '<a class="logo" href="' + (href || "#/beranda") + '"><span class="logo-chip" aria-hidden="true">L</span>LogikaKu</a>';
   };
 
+  /* Tombol ganti mode terang/gelap. Labelnya menyebut mode tujuan. */
+  K.tombolTema = function () {
+    var gelap = LK.temaAktif() === "gelap", label = "Ganti ke mode " + (gelap ? "terang" : "gelap");
+    return '<button type="button" class="tombol-ikon tombol-tema" data-aksi="ganti-tema" aria-label="' + label + '" title="' + label + '">' +
+      I(gelap ? "sun" : "moon", "ikon-lg") + "</button>";
+  };
+
   K.progresBar = function (nilai, teksKiri, label) {
     var v = Math.max(0, Math.min(100, Math.round(nilai)));
     return '<div><div class="progres-teks"><span>' + esc(teksKiri || "") + "</span><span>" + v + "%</span></div>" +

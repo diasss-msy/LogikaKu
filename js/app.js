@@ -57,9 +57,29 @@ window.LK = window.LK || {};
     return tutup;
   };
 
+  /* Perbarui semua tombol tema dan pilihan "Mode warna" di Profil tanpa memuat ulang layar,
+   * supaya fokus keyboard tetap di tombol yang baru ditekan. */
+  LK.segarkanTombolTema = function () {
+    document.querySelectorAll('[data-aksi="ganti-tema"]').forEach(function (b) {
+      var tmp = document.createElement("div");
+      tmp.innerHTML = K.tombolTema();
+      var baru = tmp.firstChild;
+      b.innerHTML = baru.innerHTML;
+      b.setAttribute("aria-label", baru.getAttribute("aria-label"));
+      b.setAttribute("title", baru.getAttribute("title"));
+    });
+    var seg = document.querySelector('[data-segmen="tema"]');
+    if (seg) seg.querySelectorAll("button").forEach(function (b) {
+      var on = b.getAttribute("data-nilai") === LK.pref.tema;
+      b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1;
+      var cek = b.querySelector(".ikon"); if (cek) cek.remove();
+      if (on) b.insertAdjacentHTML("afterbegin", I("check", "ikon-sm"));
+    });
+  };
+
   /* ---------- Kerangka aplikasi ---------- */
   function sidebar(aktif) {
-    var h = '<nav class="sidebar" aria-label="Menu utama">' + K.logo() +
+    var h = '<nav class="sidebar" aria-label="Menu utama"><div class="side-kepala">' + K.logo() + K.tombolTema() + "</div>" +
       sideItem("#/beranda", "home", "Beranda", aktif === "beranda");
     LK.data.bab.forEach(function (b) {
       h += '<p class="side-grup">' + esc(b.judul) + "</p>";
@@ -85,14 +105,14 @@ window.LK = window.LK || {};
     if (t.jenis === "beranda") {
       var inisial = (LK.sesi.nama || "?").trim().charAt(0).toUpperCase();
       return '<header class="topbar">' + K.logo() + '<span class="spacer"></span>' +
-        '<a class="tautan" href="#/rekap">' + I("bar-chart") + "Rekap</a>" +
+        '<a class="tautan" href="#/rekap">' + I("bar-chart") + "Rekap</a>" + K.tombolTema() +
         '<a class="avatar" href="#/profil" aria-label="Profil ' + esc(LK.sesi.nama) + '"><span aria-hidden="true">' + esc(inisial) + "</span></a></header>";
     }
     var kiri = t.tutup
       ? '<button type="button" class="tombol-ikon" data-aksi="tutup-kuis" aria-label="Tutup kuis">' + I("x", "ikon-lg") + "</button>"
       : '<a class="tombol-ikon" href="' + (t.kembali || "#/beranda") + '" aria-label="Kembali">' + I("chevron-left", "ikon-lg") + "</a>";
     return '<header class="topbar dengan-kembali">' + kiri + '<span class="topbar-judul">' + esc(t.judul || "") + "</span>" +
-      (t.meta ? '<span class="topbar-meta">' + esc(t.meta) + "</span>" : "") + "</header>";
+      (t.meta ? '<span class="topbar-meta">' + esc(t.meta) + "</span>" : "") + K.tombolTema() + "</header>";
   }
 
   var akar;
@@ -152,6 +172,14 @@ window.LK = window.LK || {};
     akar = document.getElementById("akar");
     /* Tombol mata kata sandi dan tombol "aria-disabled" berlaku di semua layar. */
     document.addEventListener("click", function (e) {
+      var tema = e.target.closest('[data-aksi="ganti-tema"]');
+      if (tema) {
+        var baru = LK.temaAktif() === "gelap" ? "terang" : "gelap";
+        LK.ubahPref("tema", baru);
+        LK.segarkanTombolTema();
+        LK.umumkan("Mode " + baru + " aktif.");
+        return;
+      }
       var mata = e.target.closest("[data-mata]");
       if (mata) {
         var inp = document.getElementById(mata.getAttribute("data-mata"));
