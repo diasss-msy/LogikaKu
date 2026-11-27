@@ -84,7 +84,7 @@ window.LK = window.LK || {};
     return tutup;
   };
 
-  /* Perbarui semua tombol tema dan pilihan "Mode warna" di Profil tanpa memuat ulang layar,
+  /* Perbarui semua tombol tema dan pilihan "Mode warna" di Pengaturan tanpa memuat ulang layar,
    * supaya fokus keyboard tetap di tombol yang baru ditekan. */
   LK.segarkanTombolTema = function () {
     document.querySelectorAll('[data-aksi="ganti-tema"]').forEach(function (b) {
@@ -121,7 +121,8 @@ window.LK = window.LK || {};
       });
     });
     h += '<p class="side-grup">Lainnya</p>' + sideItem("#/rekap", "bar-chart", "Rekap Skor", aktif === "rekap") +
-      sideItem("#/profil", "user", "Profil", aktif === "profil") + "</nav>";
+      sideItem("#/profil", "user", "Profil", aktif === "profil") +
+      sideItem("#/pengaturan", "settings", "Pengaturan", aktif === "pengaturan") + "</nav>";
     return h;
   }
   function sideItem(href, ikon, label, on) {

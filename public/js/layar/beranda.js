@@ -124,10 +124,7 @@
     /* Gaya panel: tiap kelompok elemen duduk di panel putih dengan kepala (ikon, judul, keterangan, aksi).
      * Elemen sama seperti sebelumnya. Urutan di HTML = urutan di HP dan urutan pembaca layar. */
     var r = LK.ringkasan(), total = LK.data.modul.length;
-    function kepala(ikon, id, judul, ket, aksi) {
-      return '<div class="p-kepala"><div class="p-judul"><span class="p-ikon" aria-hidden="true">' + I(ikon) + '</span><div>' +
-        '<h2 id="' + id + '">' + judul + '</h2><p class="caption">' + ket + "</p></div></div>" + (aksi ? '<div class="p-aksi">' + aksi + "</div>" : "") + "</div>";
-    }
+    var kepala = K.kepalaPanel;
     var html = (offline ? bannerOffline() : "") +
       '<div class="beranda">' +
       '<div class="p-panel b-atas">' +

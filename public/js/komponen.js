@@ -21,6 +21,12 @@ window.LK = window.LK || {};
   };
 
   /* Tombol ganti mode terang/gelap. Labelnya menyebut mode tujuan. */
+  /* Kepala panel: ikon, judul (h2), keterangan, dan aksi di kanan. Dipakai Beranda, Profil, Pengaturan. */
+  K.kepalaPanel = function (ikon, id, judul, ket, aksi) {
+    return '<div class="p-kepala"><div class="p-judul"><span class="p-ikon" aria-hidden="true">' + I(ikon) + '</span><div>' +
+      '<h2 id="' + id + '">' + judul + '</h2>' + (ket ? '<p class="caption">' + ket + "</p>" : "") + "</div></div>" + (aksi ? '<div class="p-aksi">' + aksi + "</div>" : "") + "</div>";
+  };
+
   K.tombolTema = function () {
     var gelap = LK.temaAktif() === "gelap", label = "Ganti ke mode " + (gelap ? "terang" : "gelap");
     return '<button type="button" class="tombol-ikon tombol-tema" data-aksi="ganti-tema" aria-label="' + label + '" title="' + label + '">' +
