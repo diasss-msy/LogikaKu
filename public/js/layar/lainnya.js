@@ -55,7 +55,10 @@
       fokus: '[data-aksi="batal"]',
       pasang: function (md, tutup) {
         md.querySelector('[data-aksi="batal"]').addEventListener("click", function () { tutup(); });
-        md.querySelector('[data-aksi="keluar"]').addEventListener("click", function () { tutup(function () { LK.buka("#/landing"); }); });
+        md.querySelector('[data-aksi="keluar"]').addEventListener("click", function () {
+          if (!LK.server) { tutup(function () { LK.buka("#/landing"); }); return; }
+          LK.api.kirim("POST", "/keluar").then(function () { LK.sesi = null; tutup(function () { LK.buka("#/landing"); }); });
+        });
       }
     });
   }
@@ -127,7 +130,14 @@
             ulang: function (v, s) { return !v ? "Ulangi kata sandi baru." : v !== s.baru ? "Kata sandi belum sama dengan yang di atas." : null; }
           },
           saatKetik: function (v) { var penuh = v.lama && v.baru && v.ulang; btn.disabled = !penuh; syarat.hidden = !!penuh; },
-          kirim: function () { LK.buka("#/profil/ganti-sandi?tersimpan"); }
+          kirim: function (v, a) {
+            if (!LK.server) { LK.buka("#/profil/ganti-sandi?tersimpan"); return; }
+            LK.api.kirim("PUT", "/sandi", { lama: v.lama, baru: v.baru }).then(function (j) {
+              if (j.ok) { LK.buka("#/profil/ganti-sandi?tersimpan"); return; }
+              LK.galatServer(j, a, { label: "Simpan kata sandi", judul: "Kata sandi belum diganti", fokus: "lama", petaKolom: { lama: "lama", baru: "baru" } });
+              btn.disabled = false;
+            });
+          }
         });
         form.querySelectorAll("[data-ke]").forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); el.querySelector("#lama").focus(); }); });
         if (gagal) form.querySelector(".ringkasan-galat").focus();
@@ -157,16 +167,19 @@
       shell: "polos", judul: "Daftar layar prototype",
       html: '<main id="utama" class="indeks tumpuk" tabindex="-1">' + K.logo("#/landing") + "<h1>Daftar layar prototype</h1>" +
         '<p class="redup lebar-baca">Semua ' + DAFTAR.length + " layar desain LogikaKu tahap 1. Nama di kiri sama dengan nama PNG dan frame Figma. Layar yang terkunci untuk Dimas dibuka dengan tanda <code>paksa</code>.</p>" +
-        '<div class="deret-tombol">' + K.tombol({ label: "Pakai data Dimas lagi", varian: "secondary", aksi: "reset" }) + K.tombol({ label: "Mulai dari Landing", href: "#/landing" }) + "</div>" +
+        '<div class="deret-tombol">' + (LK.server ? "" : K.tombol({ label: "Pakai data Dimas lagi", varian: "secondary", aksi: "reset" })) + K.tombol({ label: "Mulai dari Landing", href: "#/landing" }) + "</div>" +
         '<ol class="daftar-layar">' + DAFTAR.map(function (d) { return '<li><a href="' + d[2] + '"><span class="mono">' + d[0] + "</span><span>" + esc(d[1]) + "</span></a></li>"; }).join("") + "</ol></main>",
       pasang: function (el) {
-        el.querySelector('[data-aksi="reset"]').addEventListener("click", function () { LK.masukSebagaiDimas(); LK.umumkan("Data contoh Dimas dipulihkan."); });
+        var reset = el.querySelector('[data-aksi="reset"]');
+        if (reset) reset.addEventListener("click", function () { LK.masukSebagaiDimas(); LK.umumkan("Data contoh Dimas dipulihkan."); });
       }
     };
   });
   /* Beranda pengguna baru dan beranda naik untuk ditinjau langsung. */
-  LK.rute("/layar/baru", function () { LK.daftarBaru("Dimas", "dimas@gmail.com"); return { alih: "#/beranda" }; });
+  /* Di mode server keduanya tidak mengubah akun sungguhan. */
+  LK.rute("/layar/baru", function () { if (!LK.server) LK.daftarBaru("Dimas", "dimas@gmail.com"); return { alih: "#/beranda" }; });
   LK.rute("/layar/naik", function () {
+    if (LK.server) return { alih: "#/beranda" };
     LK.masukSebagaiDimas();
     LK.catatKuis(4, 8, 10);
     return { alih: "#/beranda?naik=5" };

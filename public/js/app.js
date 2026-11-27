@@ -174,10 +174,16 @@ window.LK = window.LK || {};
     return { jalur: h, q: q };
   }
 
+  /* Di mode server, layar ini bisa dibuka tanpa masuk. Layar lain butuh akun. */
+  var TERBUKA = /^\/(landing|masuk|daftar|lupa-sandi|cek-email|sandi-baru|layar)$/;
+  var HANYA_TAMU = /^\/(masuk|daftar)$/;
+
   var pertama = true;
   function arahkan() {
     var r = bacaHash();
-    if (r.jalur === "/" || r.jalur === "") { location.replace("#/landing"); return; }
+    if (r.jalur === "/" || r.jalur === "") { location.replace(LK.server && LK.masuk() ? "#/beranda" : "#/landing"); return; }
+    if (LK.server && !LK.masuk() && !TERBUKA.test(r.jalur)) { location.replace("#/masuk"); return; }
+    if (LK.server && LK.masuk() && HANYA_TAMU.test(r.jalur) && !r.q.gagal) { location.replace("#/beranda"); return; }
     for (var i = 0; i < rute.length; i++) {
       var m = rute[i].re.exec(r.jalur);
       if (m) {
@@ -225,6 +231,9 @@ window.LK = window.LK || {};
     window.addEventListener("hashchange", arahkan);
     window.addEventListener("online", function () { if (/beranda/.test(location.hash)) arahkan(); });
     window.addEventListener("offline", function () { if (/beranda/.test(location.hash)) arahkan(); });
-    arahkan();
+    LK.muatSesi().then(function () {
+      if (LK.sesiGagal) LK.umumkan("Server LogikaKu belum bisa dihubungi. Coba muat ulang halaman.");
+      arahkan();
+    });
   });
 })();

@@ -2,61 +2,102 @@
 
 Media belajar logika dan algoritma untuk siswa SMK kelas X TKJ dan RPL.
 
-Ini **prototype tahap 1**: website statis dari HTML, CSS, dan JavaScript biasa, tanpa server, tanpa build, dan tanpa akun sungguhan. Semua data berasal dari satu file contoh (siswa **Dimas**: lulus Modul 1 sampai 3, sedang di Modul 4, Modul 5 sampai 10 terkunci).
+**Tahap 2:** LogikaKu sekarang berjalan di **Laravel 13** dengan database **Supabase** (Postgres). Siswa bisa daftar, masuk, keluar, lupa dan ganti kata sandi, dan progres belajar (langkah modul dan nilai kuis) tersimpan di akun.
 
-## Cara membuka di laptop
+Tampilannya tetap HTML, CSS, dan JavaScript biasa di `public/`, tanpa langkah build. Laravel menyajikan halaman itu dan menyediakan API kecil di `/api`.
 
-Cara paling cepat: klik dua kali `index.html`. Semua file dimuat dengan `<script>` biasa, jadi halaman jalan langsung dari `file://`.
+## Menjalankan di laptop
 
-Kalau ingin alamat yang rapi (disarankan saat menguji), jalankan server kecil dari folder ini:
+Butuh PHP 8.3 atau lebih baru (dengan ekstensi `pdo_pgsql`, atau `pdo_sqlite` untuk mencoba tanpa Supabase) dan Composer.
 
 ```bash
-python3 -m http.server 8000
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Lalu buka <http://localhost:8000>. Font diambil dari Google Fonts, jadi tanpa internet tampilannya memakai font cadangan.
+Lalu isi koneksi database di `.env`:
 
-## Versi online (GitHub Pages)
+- **Supabase:** buka proyek di Supabase, klik **Connect**, pilih **Session pooler**, lalu salin host, user (`postgres.<ref proyek>`), dan kata sandi database ke `DB_HOST`, `DB_USERNAME`, dan `DB_PASSWORD`. `DB_SSLMODE=require` biarkan.
+- **Tanpa Supabase (coba cepat):** ganti blok database dengan `DB_CONNECTION=sqlite` saja. Laravel memakai `database/database.sqlite`.
 
-Setiap push ke `main` diterbitkan otomatis ke <https://diasss-msy.github.io/LogikaKu/> lewat `.github/workflows/pages.yml`. Yang ikut terbit hanya `index.html`, `css/`, `js/`, dan `data/`.
+Kemudian:
 
-Syaratnya, repo harus publik dan **Settings > Pages > Source** diisi **GitHub Actions**. Selama repo masih privat, workflow dilewati.
+```bash
+php artisan migrate
+php artisan serve
+```
 
-Ini tetap prototype: login masih pura-pura dan progres hanya tersimpan di browser masing-masing.
+Buka <http://localhost:8000>. File `.env` berisi kredensial dan tidak ikut di-commit.
+
+Email lupa kata sandi belum dikirim sungguhan: `MAIL_MAILER=log` menulisnya ke `storage/logs/laravel.log`. Salin tautan dari sana untuk mencoba. Untuk email sungguhan, isi pengaturan SMTP di `.env`.
+
+### Tes
+
+```bash
+php artisan test
+```
+
+Tes memakai SQLite di memori, jadi tidak menyentuh Supabase. Workflow `.github/workflows/tes.yml` menjalankannya di setiap PR.
+
+## Keamanan data
+
+- Kata sandi disimpan sebagai hash bcrypt oleh Laravel, tidak pernah di browser.
+- Masuk dibatasi 6 percobaan per menit, lupa kata sandi 3 per menit.
+- Jawaban "lupa kata sandi" selalu sama, ada atau tidak akunnya.
+- Supabase membuka tabel di skema `public` lewat API REST-nya. Migrasi `kunci_tabel_dari_api_supabase` menyalakan Row Level Security tanpa policy di semua tabel, jadi kunci `anon` Supabase tidak bisa membaca data siswa. Laravel tetap bisa karena tersambung sebagai pemilik tabel.
+- Nilai kuis dihitung di browser lalu dikirim ke server. Server memeriksa batasnya (modul 1 sampai 10, benar tidak melebihi total), tetapi belum memeriksa jawaban satu per satu.
+
+## API
+
+Semua rute di grup `web` (sesi cookie dan token CSRF dari `<meta name="csrf-token">`).
+
+| Rute | Guna |
+|---|---|
+| `POST /api/daftar` | `nama`, `email`, `sandi`. Membuat akun lalu langsung masuk. |
+| `POST /api/masuk` | `email`, `sandi`. |
+| `POST /api/keluar` | Mengakhiri sesi. |
+| `POST /api/lupa-sandi` | `email`. Mengirim tautan ke `#/sandi-baru?token=...&email=...`, berlaku 30 menit. |
+| `POST /api/sandi-baru` | `token`, `email`, `sandi`. |
+| `GET /api/saya` | Nama, email, dan progres per modul. Butuh masuk. |
+| `PUT /api/sandi` | `lama`, `baru`. Butuh masuk. |
+| `POST /api/progres/{modul}/langkah` | `langkah` 1 (materi) atau 2 (latihan). Tidak pernah turun. |
+| `POST /api/progres/{modul}/kuis` | `benar`, `total`. Nilai 70 ke atas meluluskan modul; nilai terbaik disimpan. |
+
+## Mode demo dan GitHub Pages
+
+GitHub Pages tidak bisa menjalankan PHP. Workflow `.github/workflows/pages.yml` menerbitkan **mode demo**: tampilan yang sama tanpa dua baris bertanda `mode-server` di `resources/views/app.blade.php`. Tanpa baris itu, `public/js/status.js` memakai data contoh siswa **Dimas** dan menyimpan progres di `localStorage`, seperti prototype tahap 1. Syarat terbit: repo publik dan **Settings > Pages > Source** diisi **GitHub Actions**.
+
+Versi Laravel butuh hosting PHP sendiri (belum dipilih).
 
 ## Daftar semua layar
 
-Buka `#/layar` (misalnya <http://localhost:8000/#/layar>). Halaman ini berisi tautan ke 39 layar dari desain (34 layar handoff plus 5 layar 27 November), termasuk state khusus seperti `?gagal`, `?kosong`, `?offline`, `?memuat`, dan `?demo=...`. Tombol "Pakai data Dimas lagi" mengembalikan progres contoh.
-
-Alur utama yang bisa diklik: Landing → Masuk → Beranda → Materi → Latihan → Kuis → Hasil → Lencana → kembali ke Beranda (rangkaian modul berikutnya menyala).
+Buka `#/layar`. Halaman ini berisi tautan ke 39 layar dari desain, termasuk state khusus seperti `?gagal`, `?kosong`, `?offline`, `?memuat`, dan `?demo=...`. Di mode server, layar contoh tidak mengubah akun sungguhan, dan layar selain Landing, Masuk, Daftar, dan lupa kata sandi meminta masuk dulu.
 
 ## Struktur
 
 | Bagian | Isi |
 |---|---|
-| `index.html` | Satu halaman; rute memakai hash (`#/beranda`, `#/modul/4/kuis`, dan seterusnya). |
-| `css/tokens.css` | Variabel warna, ukuran, jarak, dan gerak. **Dibuat otomatis**, jangan diedit langsung. |
-| `css/dasar.css`, `css/komponen.css`, `css/layar.css` | Tata letak dasar, komponen, dan gaya per layar. Semua nilai memakai token, tanpa kode HEX. |
-| `css/gerak.css` | Animasi tambahan (umpan balik, saklar, LED, ganti tema, kartu hero). Mati otomatis dengan "Kurangi animasi". |
-| `data/contoh.js` | Data contoh: siswa, 10 modul, materi, soal latihan, kuis, dan jawaban benar. |
-| `js/status.js` | Pengaturan tampilan dan progres contoh (`localStorage`). |
-| `js/komponen.js`, `js/ikon.js` | Pembuat komponen (tombol, LED rangkaian, kolom form) dan ikon Lucide. |
-| `js/app.js` | Router, kerangka aplikasi (sidebar, top bar), modal, dan pengumuman pembaca layar. |
-| `js/layar/*.js` | Isi tiap layar. |
+| `resources/views/app.blade.php` | Satu halaman; rute memakai hash (`#/beranda`, `#/modul/4/kuis`, dan seterusnya). |
+| `routes/web.php` | Halaman utama dan rute `/api`. |
+| `app/Http/Controllers/Api/` | `AkunController` (daftar, masuk, keluar, ganti sandi), `SandiController` (lupa sandi), `ProgresController`. |
+| `app/Models/` | `User` dan `Progres` (satu baris per siswa per modul). |
+| `database/migrations/` | Tabel bawaan Laravel, `progres`, dan penguncian RLS untuk Supabase. |
+| `tests/Feature/` | Tes API. |
+| `public/css/tokens.css` | Variabel warna, ukuran, jarak, dan gerak. **Dibuat otomatis**, jangan diedit langsung. |
+| `public/css/dasar.css`, `komponen.css`, `layar.css` | Tata letak dasar, komponen, dan gaya per layar. Semua nilai memakai token, tanpa kode HEX. |
+| `public/css/gerak.css` | Animasi tambahan. Mati otomatis dengan "Kurangi animasi". |
+| `public/data/contoh.js` | Isi belajar: 10 modul, materi, latihan, kuis, dan data contoh Dimas untuk mode demo. |
+| `public/js/status.js` | Pengaturan tampilan, sesi, progres, dan `LK.api` untuk bicara dengan Laravel. |
+| `public/js/komponen.js`, `ikon.js` | Pembuat komponen dan ikon Lucide. |
+| `public/js/app.js` | Router, kerangka aplikasi, modal, dan pengumuman pembaca layar. |
+| `public/js/layar/*.js` | Isi tiap layar. |
 | `design/tokens.json` | Token dari handoff desain. |
-| `tools/buat_tokens.py` | Membuat ulang `css/tokens.css` dari `design/tokens.json`. |
-
-Kalau token desain berubah, ganti `design/tokens.json` lalu jalankan:
-
-```bash
-python3 tools/buat_tokens.py
-```
+| `tools/buat_tokens.py` | Membuat ulang `public/css/tokens.css` dari `design/tokens.json`. |
 
 ## Yang disimpan di browser
 
-Hanya dua kunci `localStorage`: `logikaku-pengaturan` (tema, ukuran teks, kurangi animasi) dan `logikaku-sesi` (progres contoh). Kata sandi tidak pernah disimpan di mana pun. Form masuk, daftar, lupa sandi, dan ganti sandi hanya memeriksa isian di browser lalu pindah ke layar berikutnya.
-
-Untuk mencoba state "masuk gagal", isi kata sandi kurang dari 8 karakter di halaman Masuk.
+`localStorage` hanya menyimpan `logikaku-pengaturan` (tema, ukuran teks, kurangi animasi). Di mode demo ada juga `logikaku-sesi` (progres contoh). Kata sandi tidak pernah disimpan di browser.
 
 ## Aksesibilitas
 
