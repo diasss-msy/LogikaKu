@@ -280,6 +280,103 @@
     });
   });
 
+  /* ---------- Gerak landing ----------
+   * Mengikuti referensi video Syahrial (28 Nov): judul muncul dari blur kata demi kata, kartu hero
+   * menyebar dari tengah, isi bagian muncul bergiliran saat digulir, judul bagian "terisi" seiring
+   * guliran, panel Cara belajar membesar, dan kabel di kaki halaman tergambar sampai LED menyala.
+   * Elemen tidak ditambah atau dibuang; tanpa JS atau dengan "Kurangi animasi" semuanya tampil diam. */
+  LK.gerakLanding = function (L) {
+    if (!L || LK.kurangiGerak()) return;
+    L.classList.add("gerak-landing");
+
+    /* Judul hero: pecah jadi kata. Pembaca layar tetap membaca kalimat utuh dari aria-label. */
+    var judul = L.querySelector(".judul-hero"), n = 0;
+    if (judul) {
+      judul.setAttribute("aria-label", judul.textContent.replace(/\s+/g, " ").trim());
+      judul.querySelectorAll(":scope > span").forEach(function (sp) {
+        sp.setAttribute("aria-hidden", "true");
+        sp.innerHTML = sp.textContent.trim().split(/\s+/).map(function (k) {
+          return '<span class="kata" style="--i:' + (n++) + '">' + esc(k) + "</span>";
+        }).join(" ");
+      });
+    }
+
+    /* Kartu hero (layar lebar): mulai bertumpuk di tengah kotak hero, lalu menyebar ke tempatnya. */
+    var hero = L.querySelector(".hero");
+    if (hero && window.matchMedia("(min-width: 1280px)").matches) {
+      var hb = hero.getBoundingClientRect(), cx = hb.left + hb.width / 2, cy = hb.top + hb.height / 2;
+      L.querySelectorAll(".melayang > *").forEach(function (k, i) {
+        var b = k.getBoundingClientRect();
+        if (!b.width) return;
+        k.style.setProperty("--dx", Math.round((cx - (b.left + b.width / 2)) * 0.8) + "px");
+        k.style.setProperty("--dy", Math.round((cy - (b.top + b.height / 2)) * 0.8) + "px");
+        k.style.setProperty("--i", i);
+        k.classList.add("sebar");
+      });
+    }
+
+    /* Muncul saat digulir, bergiliran di dalam satu kelompok. */
+    var target = [];
+    function tandai(sel, kelompok) {
+      L.querySelectorAll(sel).forEach(function (e) {
+        if (!e.getClientRects().length) return; /* tersembunyi di ukuran layar ini */
+        var saudara = kelompok ? Array.prototype.indexOf.call(e.parentNode.children, e) : 0;
+        e.style.setProperty("--i", saudara);
+        e.classList.add("muncul");
+        target.push(e);
+      });
+    }
+    if (!hero || !window.matchMedia("(min-width: 1280px)").matches) tandai(".melayang > .kartu-melayang", true);
+    tandai(".landing-bagian > .lebar-baca, .landing-bagian > .judul-bab");
+    tandai(".grid-landing > .kartu-landing, .cara-langkah > li", true);
+    tandai(".landing-kaki");
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (isi) {
+        isi.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add("tampak"); io.unobserve(x.target); } });
+      }, { rootMargin: "0px 0px -12% 0px", threshold: 0.15 });
+      target.forEach(function (e) { io.observe(e); });
+    } else {
+      target.forEach(function (e) { e.classList.add("tampak"); });
+    }
+
+    /* Judul bagian terisi kata demi kata mengikuti guliran. */
+    var isiJudul = [];
+    L.querySelectorAll(".landing-bagian > h2").forEach(function (h) {
+      h.setAttribute("aria-label", h.textContent);
+      var kata = h.textContent.trim().split(/\s+/);
+      h.innerHTML = '<span aria-hidden="true">' + kata.map(function (k) { return '<span class="kata-isi">' + esc(k) + "</span>"; }).join(" ") + "</span>";
+      isiJudul.push({ h: h, kata: h.querySelectorAll(".kata-isi") });
+    });
+    var panel = L.querySelector(".panel-balik"), kaki = L.querySelector(".landing-kaki");
+    var jalan = false;
+    function hitung() {
+      jalan = false;
+      if (!document.body.contains(L)) { window.removeEventListener("scroll", minta); window.removeEventListener("resize", minta); return; }
+      var vh = window.innerHeight;
+      isiJudul.forEach(function (o) {
+        var r = o.h.getBoundingClientRect();
+        var p = Math.min(1, Math.max(0, (vh * 0.92 - r.top) / (vh * 0.4)));
+        var m = o.kata.length;
+        o.kata.forEach(function (k, i) { k.style.opacity = (0.18 + 0.82 * Math.min(1, Math.max(0, p * m - i))).toFixed(3); });
+      });
+      if (panel) {
+        var rp = panel.getBoundingClientRect();
+        var q = Math.min(1, Math.max(0, (vh - rp.top) / (vh * 0.7)));
+        panel.style.setProperty("--p", q.toFixed(3));
+      }
+      if (kaki) {
+        var rk = kaki.getBoundingClientRect();
+        var pk = Math.min(1, Math.max(0, (vh - rk.top) / (rk.height * 0.9)));
+        kaki.style.setProperty("--p", pk.toFixed(3));
+        kaki.classList.toggle("nyala", pk > 0.97);
+      }
+    }
+    function minta() { if (!jalan) { jalan = true; requestAnimationFrame(hitung); } }
+    window.addEventListener("scroll", minta, { passive: true });
+    window.addEventListener("resize", minta);
+    hitung();
+  };
+
   /* ---------- 11 Landing ---------- */
   LK.rute("/landing", function () {
     var led10 = "";
@@ -319,15 +416,18 @@
       "</div></section>" +
       '<section id="modul" class="landing-bagian" aria-labelledby="modul-judul"><h2 id="modul-judul" class="judul-display">Sepuluh modul, dua rangkaian</h2>' +
       '<p class="teks-lg redup lebar-baca">Bab 1 melatih logika, Bab 2 menyusun algoritma. Setiap modul punya materi, latihan interaktif, dan kuis. Lulus kuis dengan nilai 70 ke atas menyalakan modul berikutnya.</p>' + modul + "</section>" +
-      '<section id="cara" class="landing-bagian" aria-labelledby="cara-judul"><h2 id="cara-judul">Cara belajar</h2><ol class="cara-langkah">' +
+      '<section id="cara" class="landing-bagian panel-balik" aria-labelledby="cara-judul"><h2 id="cara-judul">Cara belajar</h2><ol class="cara-langkah">' +
       [["Materi", "Penjelasan pendek dengan contoh."], ["Latihan", "Coba langsung: ketuk, isi tabel, nyalakan saklar."], ["Kuis", "10 soal. Nilai 70 membuka modul berikutnya."], ["Lencana", "Kumpulkan satu lencana tiap modul."]].map(function (c, i) {
         return '<li class="kartu"><span class="led nyala">' + (i + 1) + "</span><h3>" + c[0] + '</h3><p class="redup">' + c[1] + "</p></li>";
       }).join("") + "</ol></section></main>" +
-      '<footer id="tentang" class="landing-kaki">' + K.logo("#/landing") + '<p class="caption">Media belajar logika dan algoritma untuk kelas X TKJ dan RPL.</p>' +
+      '<footer id="tentang" class="landing-kaki">' +
+      '<svg class="kabel-kaki" aria-hidden="true" viewBox="0 0 1200 60" preserveAspectRatio="none"><path pathLength="1" d="M0 40 H260 Q290 40 300 20 T340 10 H620 Q650 10 660 30 T700 50 H1150"/><circle cx="1166" cy="50" r="10"/></svg>' +
+      K.logo("#/landing") + '<p class="caption">Media belajar logika dan algoritma untuk kelas X TKJ dan RPL.</p>' +
       '<p class="caption"><a href="#/layar">Daftar semua layar prototype</a></p></footer>';
     return {
       shell: "polos", judul: "Belajar logika jadi semudah menyalakan lampu", html: '<div class="landing">' + html + "</div>",
       pasang: function (el) {
+        LK.gerakLanding(document.querySelector(".landing"));
         el.querySelectorAll("[data-gulir]").forEach(function (a) {
           a.addEventListener("click", function (e) {
             e.preventDefault();

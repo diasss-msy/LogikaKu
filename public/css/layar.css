@@ -211,9 +211,24 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 .cara-langkah { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-4); }
 .cara-langkah li { display: flex; flex-direction: column; gap: var(--space-2); }
 .landing-kaki {
-  margin-top: var(--space-7); padding: var(--space-5) var(--gutter-mobile); border-top: var(--border-thin) solid var(--color-border);
+  position: relative;
+  margin-top: var(--space-7); padding: calc(var(--space-5) + 40px) var(--gutter-mobile) var(--space-5); border-top: var(--border-thin) solid var(--color-border);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3);
 }
+/* Kabel hiasan di atas kaki halaman: berakhir di LED kuning. */
+.kabel-kaki { position: absolute; left: 0; right: 0; top: 4px; width: 100%; height: 40px; pointer-events: none; }
+.kabel-kaki path { fill: none; stroke: var(--color-accent-base); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+.kabel-kaki circle { fill: var(--color-accent-base); }
+
+/* Cara belajar: panel berwarna terbalik dari halaman (gelap di mode terang, terang di mode gelap). */
+.panel-balik {
+  background: var(--color-text); color: var(--color-background);
+  border-radius: 24px; margin: var(--space-7) var(--gutter-mobile) 0;
+  padding: var(--space-6) var(--space-4); max-width: none;
+}
+.panel-balik > h2 { color: var(--color-background); }
+.panel-balik .cara-langkah li { color: var(--color-text); }
+.cara-langkah { position: relative; }
 @media (min-width: 768px) {
   .grid-landing, .cara-langkah { grid-template-columns: 1fr 1fr; }
   .landing-bagian { padding-left: var(--gutter-tablet); padding-right: var(--gutter-tablet); }
@@ -222,6 +237,13 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .grid-landing { grid-template-columns: repeat(5, 1fr); }
   .cara-langkah { grid-template-columns: repeat(4, 1fr); }
   .landing-bagian, .landing-kaki { padding-left: var(--space-7); padding-right: var(--space-7); }
+  .panel-balik { margin-left: var(--space-6); margin-right: var(--space-6); padding: var(--space-7); }
+  /* Kabel kuning di belakang deret langkah, menyambung LED satu ke yang berikutnya. */
+  .panel-balik .cara-langkah::before {
+    content: ""; position: absolute; left: 6%; right: 6%; top: calc(var(--space-4) + 15px); height: 4px; border-radius: 2px;
+    background: var(--color-accent-base); transform-origin: left center; z-index: 0;
+  }
+  .panel-balik .cara-langkah li { position: relative; z-index: 1; }
 }
 
 /* ---------- Materi ---------- */

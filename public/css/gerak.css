@@ -1,6 +1,7 @@
 /* Gerak tambahan untuk rasa interaksi. Aturan dari design-system §6 tetap dipakai:
- * hanya transform, opacity, dan warna; jawaban salah tidak pernah digoyang; tidak ada kartu yang
- * muncul berurutan. Semua gerak mati otomatis lewat aturan "Kurangi animasi" di dasar.css. */
+ * hanya transform, opacity, filter, dan warna; jawaban salah tidak pernah digoyang.
+ * Pengecualian: di Landing, kartu boleh muncul bergiliran (permintaan Syahrial, 28 Nov).
+ * Semua gerak mati otomatis lewat aturan "Kurangi animasi" di dasar.css. */
 
 /* ---------- Umpan balik muncul ---------- */
 .umpan { animation: muncul-naik var(--dur-base) var(--ease-out) both; }
@@ -70,3 +71,74 @@
 }
 @keyframes apung { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
 
+
+/* ---------- Landing: gerak ala referensi video (aktif hanya dengan kelas .gerak-landing dari JS) ---------- */
+.gerak-landing { --kurva: cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Judul hero: kata muncul dari blur satu per satu. */
+.gerak-landing .judul-hero .kata {
+  display: inline-block;
+  animation: kata-masuk 900ms var(--kurva) both;
+  animation-delay: calc(150ms + var(--i) * 70ms);
+}
+@keyframes kata-masuk { from { opacity: 0; filter: blur(10px); translate: 0 0.35em; } to { opacity: 1; filter: blur(0); translate: 0 0; } }
+
+/* Isi hero lain menyusul dari bawah. */
+.gerak-landing .hero-isi > .logo-chip { animation: pop-masuk 700ms var(--ease-bounce) both; }
+.gerak-landing .hero-isi > .hero-desk { animation: naik-blur 800ms var(--kurva) 650ms both; }
+.gerak-landing .hero-isi > .hero-led { animation: naik-blur 800ms var(--kurva) 780ms both; }
+.gerak-landing .hero-isi > .hero-cta { animation: naik-blur 800ms var(--kurva) 900ms both; }
+.gerak-landing .hero-led .led-kecil { animation: led-hidup 500ms var(--ease-bounce) both; animation-delay: calc(900ms + var(--n, 0) * 60ms); }
+.gerak-landing .hero-led .led-kecil:nth-child(1) { --n: 0; } .gerak-landing .hero-led .led-kecil:nth-child(2) { --n: 1; }
+.gerak-landing .hero-led .led-kecil:nth-child(3) { --n: 2; } .gerak-landing .hero-led .led-kecil:nth-child(4) { --n: 3; }
+.gerak-landing .hero-led .led-kecil:nth-child(5) { --n: 4; } .gerak-landing .hero-led .led-kecil:nth-child(6) { --n: 5; }
+.gerak-landing .hero-led .led-kecil:nth-child(7) { --n: 6; } .gerak-landing .hero-led .led-kecil:nth-child(8) { --n: 7; }
+.gerak-landing .hero-led .led-kecil:nth-child(9) { --n: 8; } .gerak-landing .hero-led .led-kecil:nth-child(10) { --n: 9; }
+@keyframes naik-blur { from { opacity: 0; filter: blur(8px); translate: 0 24px; } to { opacity: 1; filter: blur(0); translate: 0 0; } }
+@keyframes pop-masuk { from { opacity: 0; scale: 0.4; rotate: -12deg; } to { opacity: 1; scale: 1; rotate: 0deg; } }
+
+/* Jalur PCB terbuka dari tengah seperti arus yang menyebar. */
+.gerak-landing .jalur-pcb { animation: buka-jalur 1600ms var(--kurva) 400ms both; }
+@keyframes buka-jalur { from { clip-path: circle(0% at 50% 50%); } to { clip-path: circle(75% at 50% 50%); } }
+
+/* Kartu hero (layar lebar): menyebar dari tengah, lalu melayang pelan. */
+@media (min-width: 1280px) {
+  .gerak-landing .melayang > .sebar {
+    animation: sebar 1200ms var(--kurva) both, apung 6s ease-in-out infinite;
+    animation-delay: calc(450ms + var(--i) * 90ms), calc(1800ms + var(--i) * 90ms);
+  }
+}
+@keyframes sebar {
+  from { opacity: 0; translate: var(--dx, 0) var(--dy, 0); scale: 0.55; filter: blur(12px); }
+  60% { opacity: 1; filter: blur(0); }
+  to { opacity: 1; translate: 0 0; scale: 1; filter: blur(0); }
+}
+
+/* Muncul saat digulir, bergiliran dalam satu kelompok. */
+.gerak-landing .muncul {
+  opacity: 0; filter: blur(8px); translate: 0 40px;
+  transition: opacity 800ms var(--kurva), filter 800ms var(--kurva), translate 900ms var(--kurva);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+.gerak-landing .muncul.tampak { opacity: 1; filter: blur(0); translate: 0 0; }
+.gerak-landing .kartu-landing.muncul.tampak .led { animation: led-hidup 600ms var(--ease-bounce) both; animation-delay: calc(250ms + var(--i, 0) * 80ms); }
+
+/* Judul bagian terisi kata demi kata (opacity diatur JS mengikuti guliran). */
+.gerak-landing .kata-isi { transition: opacity 120ms linear; }
+
+/* Panel Cara belajar membesar dan sudutnya mengecil saat masuk layar (--p dari JS, 0 sampai 1). */
+.gerak-landing .panel-balik {
+  scale: calc(0.9 + 0.1 * var(--p, 1));
+  border-radius: calc(24px + 40px * (1 - var(--p, 1)));
+}
+/* LED langkah menyala bergiliran, kabel di antaranya mengalir. */
+.gerak-landing .cara-langkah > li.muncul .led { opacity: 0.35; scale: 0.8; transition: opacity 400ms, scale 500ms var(--ease-bounce); transition-delay: calc(300ms + var(--i, 0) * 180ms); }
+.gerak-landing .cara-langkah > li.muncul.tampak .led { opacity: 1; scale: 1; }
+@media (min-width: 1024px) {
+  .gerak-landing .panel-balik .cara-langkah::before { transform: scaleX(var(--p, 1)); }
+}
+
+/* Kabel kaki halaman tergambar sampai LED di ujungnya menyala. */
+.gerak-landing .kabel-kaki path { stroke-dashoffset: calc(1 - var(--p, 1)); }
+.gerak-landing .kabel-kaki circle { opacity: 0.25; transition: opacity 300ms, fill 300ms; }
+.gerak-landing .landing-kaki.nyala .kabel-kaki circle { opacity: 1; animation: led-hidup 600ms var(--ease-bounce) both; }
