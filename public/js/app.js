@@ -209,12 +209,29 @@ window.LK = window.LK || {};
       if (tema) {
         var baru = LK.temaAktif() === "gelap" ? "terang" : "gelap";
         var r = document.documentElement;
-        r.classList.add("ganti-tema");
-        clearTimeout(LK._temaT);
-        LK._temaT = setTimeout(function () { r.classList.remove("ganti-tema"); }, 400);
-        LK.ubahPref("tema", baru);
-        LK.segarkanTombolTema();
-        document.querySelectorAll('[data-aksi="ganti-tema"] .ikon').forEach(function (i) { i.classList.add("putar-masuk"); });
+        var terapkan = function () {
+          LK.ubahPref("tema", baru);
+          LK.segarkanTombolTema();
+          document.querySelectorAll('[data-aksi="ganti-tema"] .ikon').forEach(function (i) { i.classList.add("putar-masuk"); });
+        };
+        if (document.startViewTransition && !LK.kurangiGerak()) {
+          /* Warna baru menjalar sebagai lingkaran dari tombol yang dipencet sampai ujung layar terjauh. */
+          var kotak = tema.getBoundingClientRect();
+          var x = kotak.left + kotak.width / 2, y = kotak.top + kotak.height / 2;
+          var jari = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+          r.classList.add("tema-menjalar");
+          var vt = document.startViewTransition(terapkan);
+          vt.ready.then(function () {
+            r.animate({ clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + jari + "px at " + x + "px " + y + "px)"] },
+              { duration: 750, easing: "cubic-bezier(0.65, 0, 0.35, 1)", pseudoElement: "::view-transition-new(root)" });
+          }).catch(function () { /* abaikan */ });
+          vt.finished.then(function () { r.classList.remove("tema-menjalar"); }, function () { r.classList.remove("tema-menjalar"); });
+        } else {
+          r.classList.add("ganti-tema");
+          clearTimeout(LK._temaT);
+          LK._temaT = setTimeout(function () { r.classList.remove("ganti-tema"); }, 400);
+          terapkan();
+        }
         LK.umumkan("Mode " + baru + " aktif.");
         return;
       }

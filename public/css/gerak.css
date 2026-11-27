@@ -186,3 +186,10 @@
   .b-modul .kartu-modul:not(.terkunci):hover { box-shadow: var(--shadow-lifted); }
   .b-modul .kartu-modul { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
 }
+
+/* ---------- Ganti tema: warna baru menjalar dari tombol (View Transitions) ----------
+ * JS menganimasikan clip-path lingkaran pada ::view-transition-new(root). Animasi bawaan
+ * (memudar) dimatikan supaya batas lingkarannya tegas. */
+.tema-menjalar::view-transition-old(root), .tema-menjalar::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+.tema-menjalar::view-transition-old(root) { z-index: 1; }
+.tema-menjalar::view-transition-new(root) { z-index: 2; }
