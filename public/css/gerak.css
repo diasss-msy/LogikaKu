@@ -139,6 +139,6 @@
 }
 
 /* Kabel kaki halaman tergambar sampai LED di ujungnya menyala. */
-.gerak-landing .kabel-kaki path { stroke-dashoffset: calc(1 - var(--p, 1)); }
-.gerak-landing .kabel-kaki circle { opacity: 0.25; transition: opacity 300ms, fill 300ms; }
-.gerak-landing .landing-kaki.nyala .kabel-kaki circle { opacity: 1; animation: led-hidup 600ms var(--ease-bounce) both; }
+.gerak-landing .kabel-kaki { clip-path: inset(0 calc((1 - var(--p, 1)) * 100%) 0 0); }
+.gerak-landing .led-kaki { opacity: 0.25; box-shadow: none; transition: opacity 300ms, box-shadow 300ms; }
+.gerak-landing .landing-kaki.nyala .led-kaki { opacity: 1; box-shadow: 0 0 0 4px var(--color-accent-subtle), 0 0 18px var(--color-accent-base); animation: led-hidup 600ms var(--ease-bounce) both; }

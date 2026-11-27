@@ -215,10 +215,22 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   margin-top: var(--space-7); padding: calc(var(--space-5) + 40px) var(--gutter-mobile) var(--space-5); border-top: var(--border-thin) solid var(--color-border);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3);
 }
+/* Ajakan penutup di ujung landing. */
+.landing-ajak {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-3);
+  padding: var(--space-8, 96px) var(--gutter-mobile) var(--space-6); max-width: 720px; margin: 0 auto;
+}
+.landing-ajak .judul-display { margin: 0; }
+.landing-ajak .led.besar { width: 28px; height: 28px; }
+.landing-ajak .tombol { margin-top: var(--space-2); }
+.landing-ajak .tombol .ikon { transition: transform var(--dur-base) var(--ease-out); }
+@media (hover: hover) { .landing-ajak .tombol:hover .ikon { transform: translateY(-3px); } }
+
 /* Kabel hiasan di atas kaki halaman: berakhir di LED kuning. */
 .kabel-kaki { position: absolute; left: 0; right: 0; top: 4px; width: 100%; height: 40px; pointer-events: none; }
-.kabel-kaki path { fill: none; stroke: var(--color-accent-base); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
-.kabel-kaki circle { fill: var(--color-accent-base); }
+.kabel-kaki path { fill: none; stroke: var(--color-accent-base); stroke-width: 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+/* LED di ujung kabel. Tidak di dalam SVG supaya tetap bulat walau SVG direntangkan. */
+.led-kaki { position: absolute; left: calc(100% * 1172 / 1200 - 10px); top: calc(4px + 40px * 50 / 60 - 10px); width: 20px; height: 20px; border-radius: 50%; background: var(--color-accent-base); box-shadow: 0 0 0 4px var(--color-accent-subtle); }
 
 /* Cara belajar: panel berwarna terbalik dari halaman (gelap di mode terang, terang di mode gelap). */
 .panel-balik {

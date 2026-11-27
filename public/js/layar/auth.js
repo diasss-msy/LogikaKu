@@ -329,6 +329,7 @@
     if (!hero || !window.matchMedia("(min-width: 1280px)").matches) tandai(".melayang > .kartu-melayang", true);
     tandai(".landing-bagian > .lebar-baca, .landing-bagian > .judul-bab");
     tandai(".grid-landing > .kartu-landing, .cara-langkah > li", true);
+    tandai(".landing-ajak > *", true);
     tandai(".landing-kaki");
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (isi) {
@@ -419,15 +420,37 @@
       '<section id="cara" class="landing-bagian panel-balik" aria-labelledby="cara-judul"><h2 id="cara-judul">Cara belajar</h2><ol class="cara-langkah">' +
       [["Materi", "Penjelasan pendek dengan contoh."], ["Latihan", "Coba langsung: ketuk, isi tabel, nyalakan saklar."], ["Kuis", "10 soal. Nilai 70 membuka modul berikutnya."], ["Lencana", "Kumpulkan satu lencana tiap modul."]].map(function (c, i) {
         return '<li class="kartu"><span class="led nyala">' + (i + 1) + "</span><h3>" + c[0] + '</h3><p class="redup">' + c[1] + "</p></li>";
-      }).join("") + "</ol></section></main>" +
+      }).join("") + "</ol></section>" +
+      /* Ajakan penutup: tombol membawa ke atas dulu, lalu ke Daftar (yang punya tautan ke Masuk). */
+      '<section id="ajak" class="landing-ajak" aria-labelledby="ajak-judul">' +
+      '<span class="led nyala besar" aria-hidden="true"></span>' +
+      '<h2 id="ajak-judul" class="judul-display">Siap menyalakan rangkaianmu?</h2>' +
+      '<p class="teks-lg redup">Gratis. Daftar sekali, progresmu tersimpan di akun.</p>' +
+      K.tombol({ label: "Mulai Belajar", href: "#/daftar", ikonKanan: "arrow-up", kelas: "tombol-cahaya", attr: ' data-aksi="mulai-atas"' }) +
+      '<p class="caption">Sudah punya akun? <a class="tautan" href="#/masuk" data-aksi="masuk-atas">Masuk</a></p>' +
+      "</section></main>" +
       '<footer id="tentang" class="landing-kaki">' +
-      '<svg class="kabel-kaki" aria-hidden="true" viewBox="0 0 1200 60" preserveAspectRatio="none"><path pathLength="1" d="M0 40 H260 Q290 40 300 20 T340 10 H620 Q650 10 660 30 T700 50 H1150"/><circle cx="1166" cy="50" r="10"/></svg>' +
+      '<svg class="kabel-kaki" aria-hidden="true" viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0 40 H260 Q290 40 300 20 T340 10 H620 Q650 10 660 30 T700 50 H1168"/></svg><span class="led-kaki" aria-hidden="true"></span>' +
       K.logo("#/landing") + '<p class="caption">Media belajar logika dan algoritma untuk kelas X TKJ dan RPL.</p>' +
       '<p class="caption"><a href="#/layar">Daftar semua layar prototype</a></p></footer>';
     return {
       shell: "polos", judul: "Belajar logika jadi semudah menyalakan lampu", html: '<div class="landing">' + html + "</div>",
       pasang: function (el) {
         LK.gerakLanding(document.querySelector(".landing"));
+        /* Tombol di bawah: gulir halus ke atas, lalu buka Daftar/Masuk (atau Beranda kalau sudah masuk). */
+        el.querySelectorAll('[data-aksi="mulai-atas"], [data-aksi="masuk-atas"]').forEach(function (a) {
+          a.addEventListener("click", function (e) {
+            e.preventDefault();
+            var tujuan = LK.server && LK.masuk() ? "#/beranda" : a.getAttribute("href");
+            if (LK.kurangiGerak() || window.scrollY < 4) { LK.buka(tujuan); return; }
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            var mulai = Date.now();
+            (function tunggu() {
+              if (window.scrollY < 4 || Date.now() - mulai > 1500) { LK.buka(tujuan); return; }
+              requestAnimationFrame(tunggu);
+            })();
+          });
+        });
         el.querySelectorAll("[data-gulir]").forEach(function (a) {
           a.addEventListener("click", function (e) {
             e.preventDefault();
