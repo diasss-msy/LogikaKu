@@ -64,13 +64,19 @@
         b.modul.map(K.kartuModul).join("") + "</div></section>";
     });
 
+    /* Elemen sama seperti sebelumnya, hanya dikelompokkan supaya bisa ditata ulang lewat CSS grid.
+     * Urutan di HTML = urutan di HP dan urutan pembaca layar. */
+    var tata = ctx.q.tata === "b" ? "b" : "a";
     var html = (offline ? bannerOffline() : "") +
-      '<div class="sapaan"><h1 class="judul-sapaan">Halo, ' + esc(LK.sesi.nama) + '!</h1><p class="teks-lg redup">' + esc(sub) + "</p></div>" +
+      '<div class="beranda tata-' + tata + '">' +
+      '<div class="b-sapaan sapaan"><h1 class="judul-sapaan">Halo, ' + esc(LK.sesi.nama) + '!</h1><p class="teks-lg redup">' + esc(sub) + "</p></div>" +
+      '<section class="b-rangkaian" aria-label="Rangkaian modul per bab">' +
       K.segmen("bab", "Pilih bab", LK.data.bab.map(function (b) { return { nilai: String(b.id), label: b.judul }; }), String(babDipilih), "segmen-bab") +
-      '<div id="wadah-rangkaian">' + K.rangkaian(babDipilih, { mengalirKe: naik }) + "</div>" +
-      '<div class="beranda-atas">' + kartuLanjut(baru) + ringkasan() + "</div>" +
-      '<h2 class="judul-semua">Semua Modul</h2>' + daftar +
-      "<p>" + K.tautan("#/rekap", "Lihat rekap skor") + "</p>";
+      '<div id="wadah-rangkaian">' + K.rangkaian(babDipilih, { mengalirKe: naik }) + "</div></section>" +
+      '<div class="b-lanjut">' + kartuLanjut(baru) + "</div>" +
+      '<div class="b-ringkasan">' + ringkasan() + "<p>" + K.tautan("#/rekap", "Lihat rekap skor") + "</p></div>" +
+      '<div class="b-modul tumpuk"><h2 class="judul-semua">Semua Modul</h2>' + daftar + "</div>" +
+      "</div>";
 
     return {
       judul: "Beranda", aktif: "beranda", topbar: { jenis: "beranda" }, html: html,

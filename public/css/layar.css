@@ -37,6 +37,53 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 }
 @media (min-width: 1024px) { .beranda-atas { gap: var(--space-5); } }
 .judul-kartu-lanjut { font-size: var(--fs-h2); }
+
+/* ---------- Beranda: tata letak baru (elemen sama, penataan berbeda) ---------- */
+.beranda { display: flex; flex-direction: column; gap: var(--space-5); }
+.beranda > * { min-width: 0; }
+.b-rangkaian {
+  display: flex; flex-direction: column; gap: var(--space-4);
+  background: var(--color-surface); border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-xl); padding: var(--space-4);
+}
+.b-lanjut > .kartu { height: 100%; }
+.b-ringkasan { display: flex; flex-direction: column; gap: var(--space-3); }
+.b-ringkasan > p { margin: 0; }
+
+@media (min-width: 1024px) {
+  /* Tata A "bento": sapaan dan angka di atas, rangkaian berdampingan dengan kartu lanjut, modul di bawah. */
+  .beranda.tata-a {
+    display: grid; gap: var(--space-5);
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-areas: "sapaan ringkasan" "rangkaian lanjut" "modul modul";
+    align-items: stretch;
+  }
+  .tata-a .b-sapaan { grid-area: sapaan; align-self: center; }
+  .tata-a .b-ringkasan { grid-area: ringkasan; justify-content: center; }
+  .tata-a .b-ringkasan .ringkasan { grid-template-columns: repeat(3, 1fr); }
+  .tata-a .b-ringkasan > p { text-align: right; }
+  .tata-a .b-rangkaian { grid-area: rangkaian; justify-content: center; gap: var(--space-6); padding: var(--space-5); }
+  .tata-a .b-lanjut { grid-area: lanjut; }
+  .tata-a .b-lanjut > .kartu { background: var(--color-primary-subtle); border-color: var(--color-primary-base); }
+  .tata-a .b-modul { grid-area: modul; }
+
+  /* Tata B "kolom samping": isi utama di kiri, angka dan rangkaian menempel di kanan saat digulir. */
+  .beranda.tata-b {
+    display: grid; gap: var(--space-5) var(--space-6);
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-areas: "sapaan ringkasan" "lanjut rangkaian" "modul rangkaian";
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
+  }
+  .tata-b .b-sapaan { grid-area: sapaan; }
+  .tata-b .b-lanjut { grid-area: lanjut; }
+  .tata-b .b-modul { grid-area: modul; }
+  .tata-b .b-ringkasan { grid-area: ringkasan; }
+  .tata-b .b-ringkasan .ringkasan { grid-template-columns: 1fr 1fr 1fr; }
+  .tata-b .b-rangkaian { grid-area: rangkaian; position: sticky; top: var(--space-5); }
+  .tata-b .b-rangkaian .rangkaian-label { font-size: 11px; }
+  .tata-b .grid-modul { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 767px) { .tombol-lanjut { width: 100%; } }
 .judul-semua { margin-top: var(--space-3); }
 .judul-bab { font-size: var(--fs-h3); }
