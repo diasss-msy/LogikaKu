@@ -18,13 +18,13 @@ php artisan key:generate
 
 Lalu isi koneksi database di `.env`:
 
-- **Supabase:** buka proyek di Supabase, klik **Connect**, pilih **Session pooler**, lalu salin host, user (`postgres.<ref proyek>`), dan kata sandi database ke `DB_HOST`, `DB_USERNAME`, dan `DB_PASSWORD`. `DB_SSLMODE=require` biarkan.
+- **Supabase:** proyek `logikaku` (region Singapura) sudah dibuat dan tabelnya sudah ada. Buka proyek itu di Supabase, klik **Connect**, pilih **Session pooler**, lalu cocokkan `DB_HOST` dengan host di sana. Isi `DB_PASSWORD` dengan kata sandi database (kalau lupa, buat baru di **Project Settings > Database > Reset database password**). `DB_SSLMODE=require` biarkan.
 - **Tanpa Supabase (coba cepat):** ganti blok database dengan `DB_CONNECTION=sqlite` saja. Laravel memakai `database/database.sqlite`.
 
 Kemudian:
 
 ```bash
-php artisan migrate
+php artisan migrate   # di Supabase akan menjawab "Nothing to migrate" karena tabelnya sudah ada
 php artisan serve
 ```
 
