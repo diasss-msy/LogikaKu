@@ -1,0 +1,72 @@
+/* Gerak tambahan untuk rasa interaksi. Aturan dari design-system §6 tetap dipakai:
+ * hanya transform, opacity, dan warna; jawaban salah tidak pernah digoyang; tidak ada kartu yang
+ * muncul berurutan. Semua gerak mati otomatis lewat aturan "Kurangi animasi" di dasar.css. */
+
+/* ---------- Umpan balik muncul ---------- */
+.umpan { animation: muncul-naik var(--dur-base) var(--ease-out) both; }
+@keyframes muncul-naik { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Jawaban benar memantul kecil; jawaban salah hanya berganti warna. */
+.opsi.benar, .sel.benar.berubah, .item-taruh.benar, .slot-langkah.benar { animation: pantul-kecil var(--dur-slow) var(--ease-bounce) both; }
+@keyframes pantul-kecil { 0% { transform: scale(1); } 40% { transform: scale(1.03); } 100% { transform: scale(1); } }
+.opsi .opsi-status .ikon, .item-taruh .status .ikon { animation: ikon-masuk var(--dur-slow) var(--ease-bounce) both; }
+@keyframes ikon-masuk { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+
+/* ---------- Pilihan dan isian ---------- */
+.opsi.dipilih.berubah .tuts, .kalimat.dipilih.berubah, .slot-langkah.berubah, .sel.berubah:not(.salah) { animation: pop var(--dur-fast) var(--ease-out) both; }
+@keyframes pop { from { transform: scale(0.94); } to { transform: scale(1); } }
+.opsi, .kalimat, .sel, .item-taruh, .slot-langkah, .kotak-tujuan {
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.kotak-tujuan.berubah { animation: denyar var(--dur-slow) var(--ease-out); }
+@keyframes denyar { 0% { background-color: var(--color-primary-subtle); } 100% { background-color: var(--color-muted); } }
+
+/* ---------- Saklar, kabel, LED (Lab Gerbang dan latihan lain) ---------- */
+.saklar.berubah[aria-checked="true"] .saklar-pil::after { animation: geser-nyala var(--dur-fast) var(--ease-out) both; }
+.saklar.berubah[aria-checked="false"] .saklar-pil::after { animation: geser-mati var(--dur-fast) var(--ease-out) both; }
+@keyframes geser-nyala { from { transform: translateX(0); } to { transform: translateX(20px); } }
+@keyframes geser-mati { from { transform: translateX(20px); } to { transform: translateX(0); } }
+.kabel-papan { transform-origin: left center; }
+.kabel-papan.hidup.berubah { animation: arus var(--dur-base) var(--ease-out) both; }
+.led.nyala.berubah { animation: led-hidup var(--dur-slow) var(--ease-bounce) both; }
+@keyframes led-hidup { 0% { transform: scale(0.85); opacity: 0.6; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.led.mati.berubah { animation: led-padam var(--dur-fast) var(--ease-out) both; }
+@keyframes led-padam { from { opacity: 0.4; } to { opacity: 1; } }
+
+/* Baris pseudocode yang baru aktif menyorot pelan. */
+.trace li { transition: background-color var(--dur-fast) var(--ease-out); }
+.trace li.aktif.berubah { animation: sorot var(--dur-slow) var(--ease-out) both; }
+@keyframes sorot { from { opacity: 0.5; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Kartu dan tombol (hanya perangkat dengan hover) ---------- */
+@media (hover: hover) {
+  .kartu-modul:not(.terkunci), .kartu-landing {
+    transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .kartu-modul:not(.terkunci):hover, .kartu-landing:hover { transform: translateY(-3px); }
+  .tombol-cahaya { transition: transform var(--dur-base) var(--ease-out), background-color var(--dur-fast) var(--ease-out); }
+  .tombol-cahaya:hover:not(:active) { transform: translateY(-2px); }
+  .side-item { transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+  .side-item:not(.terkunci) .ikon { transition: transform var(--dur-base) var(--ease-out); }
+  .side-item:not(.terkunci):hover .ikon { transform: translateX(2px); }
+}
+
+/* ---------- Ganti tema: warna berpindah halus, ikon berputar masuk ---------- */
+.ganti-tema *, .ganti-tema *::before, .ganti-tema *::after {
+  transition: background-color 300ms var(--ease-out), border-color 300ms var(--ease-out), color 300ms var(--ease-out), fill 300ms var(--ease-out) !important;
+}
+.ganti-tema body { transition: background-color 300ms var(--ease-out); }
+.tombol-tema .ikon.putar-masuk { animation: putar-masuk var(--dur-slow) var(--ease-bounce) both; }
+@keyframes putar-masuk { from { opacity: 0; transform: rotate(-90deg) scale(0.6); } to { opacity: 1; transform: none; } }
+
+/* ---------- Landing: kartu hero melayang pelan ---------- */
+@media (min-width: 1280px) {
+  .melayang > .kartu-melayang { animation: apung 6s ease-in-out infinite; }
+  .melayang > .m-gerbang { animation-duration: 7s; animation-delay: -2s; }
+  .melayang > .m-kuis { animation-duration: 6.5s; animation-delay: -4s; }
+  .melayang > .m-flow { animation-duration: 7.5s; animation-delay: -1s; }
+  .melayang > .m-kode { animation-duration: 8s; animation-delay: -3s; }
+  .melayang > .m-rangkaian { animation-duration: 7s; animation-delay: -5s; }
+}
+@keyframes apung { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+

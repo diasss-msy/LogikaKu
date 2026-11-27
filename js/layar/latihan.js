@@ -14,7 +14,7 @@
   function penggambar(wadah, gambar) {
     return function () {
       var a = document.activeElement, kunci = a && wadah.contains(a) ? a.getAttribute("data-f") : null;
-      wadah.innerHTML = gambar();
+      LK.isiHalus(wadah, gambar());
       if (kunci) { var b = wadah.querySelector('[data-f="' + kunci + '"]'); if (b && !b.disabled) b.focus(); else { var c = wadah.querySelector("[data-f-cadangan]"); if (c) c.focus(); } }
     };
   }
@@ -144,7 +144,7 @@
         var w = el.querySelector("#latihan"), g;
         function gambarUlang() {
           var a = document.activeElement, kunci = a ? a.id || a.getAttribute("data-f") || (a.getAttribute("data-nilai") ? "seg" : null) : null;
-          w.innerHTML = gambar();
+          LK.isiHalus(w, gambar());
           K.pasangSegmen(w, "gerbang", function (v) { if (s.g !== v) { s.g = v; gambarUlang(); w.querySelector('[data-segmen="gerbang"] [aria-checked="true"]').focus(); } });
           if (kunci === "seg") return;
           var b = kunci && (document.getElementById(kunci) || w.querySelector('[data-f="' + kunci + '"]'));

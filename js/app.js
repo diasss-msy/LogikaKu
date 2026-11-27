@@ -7,6 +7,33 @@ window.LK = window.LK || {};
   LK.rute = function (pola, fn) { rute.push({ re: new RegExp("^" + pola + "$"), fn: fn }); };
 
   /* ---------- Pengumuman untuk pembaca layar ---------- */
+  /* Ganti isi wadah, lalu tandai elemen interaktif yang statusnya berubah dengan kelas "berubah"
+   * selama sebentar. Layar latihan dan kuis menggambar ulang seluruh isinya setiap aksi, jadi tanpa
+   * ini transisi CSS (saklar bergeser, LED menyala, sel terisi) tidak pernah terlihat. */
+  var YANG_DIPANTAU = ".saklar, .kabel-papan, .led, .sel, .slot-langkah, .kalimat, .opsi, .item-taruh, .kotak-tujuan, .trace li";
+  function kunciEl(el, wadah) {
+    var k = el.id || el.getAttribute("data-f");
+    if (k) return "#" + k;
+    var jalur = [];
+    for (var n = el; n && n !== wadah; n = n.parentElement) jalur.unshift(Array.prototype.indexOf.call(n.parentElement.children, n));
+    return jalur.join(".");
+  }
+  function sidik(el) { return el.className + "|" + (el.getAttribute("aria-checked") || "") + "|" + (el.getAttribute("aria-pressed") || "") + "|" + el.textContent.length; }
+  LK.isiHalus = function (wadah, html) {
+    var lama = {};
+    wadah.querySelectorAll(YANG_DIPANTAU).forEach(function (el) { lama[kunciEl(el, wadah)] = sidik(el); });
+    var adaLama = Object.keys(lama).length > 0;
+    wadah.innerHTML = html;
+    if (!adaLama) return;
+    wadah.querySelectorAll(YANG_DIPANTAU).forEach(function (el) {
+      var k = kunciEl(el, wadah);
+      if (k in lama && lama[k] !== sidik(el)) {
+        el.classList.add("berubah");
+        setTimeout(function () { el.classList.remove("berubah"); }, 500);
+      }
+    });
+  };
+
   LK.umumkan = function (teks) {
     var el = document.getElementById("pengumuman");
     el.textContent = "";
@@ -175,8 +202,13 @@ window.LK = window.LK || {};
       var tema = e.target.closest('[data-aksi="ganti-tema"]');
       if (tema) {
         var baru = LK.temaAktif() === "gelap" ? "terang" : "gelap";
+        var r = document.documentElement;
+        r.classList.add("ganti-tema");
+        clearTimeout(LK._temaT);
+        LK._temaT = setTimeout(function () { r.classList.remove("ganti-tema"); }, 400);
         LK.ubahPref("tema", baru);
         LK.segarkanTombolTema();
+        document.querySelectorAll('[data-aksi="ganti-tema"] .ikon').forEach(function (i) { i.classList.add("putar-masuk"); });
         LK.umumkan("Mode " + baru + " aktif.");
         return;
       }
