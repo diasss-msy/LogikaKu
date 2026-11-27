@@ -64,18 +64,26 @@
         b.modul.map(K.kartuModul).join("") + "</div></section>";
     });
 
-    /* Elemen sama seperti sebelumnya, hanya dikelompokkan supaya bisa ditata ulang lewat CSS grid.
-     * Urutan di HTML = urutan di HP dan urutan pembaca layar. */
-    var tata = ctx.q.tata === "b" ? "b" : "a";
+    /* Gaya panel: tiap kelompok elemen duduk di panel putih dengan kepala (ikon, judul, keterangan, aksi).
+     * Elemen sama seperti sebelumnya. Urutan di HTML = urutan di HP dan urutan pembaca layar. */
+    var r = LK.ringkasan(), total = LK.data.modul.length;
+    function kepala(ikon, id, judul, ket, aksi) {
+      return '<div class="p-kepala"><div class="p-judul"><span class="p-ikon" aria-hidden="true">' + I(ikon) + '</span><div>' +
+        '<h2 id="' + id + '">' + judul + '</h2><p class="caption">' + ket + "</p></div></div>" + (aksi ? '<div class="p-aksi">' + aksi + "</div>" : "") + "</div>";
+    }
     var html = (offline ? bannerOffline() : "") +
-      '<div class="beranda tata-' + tata + '">' +
+      '<div class="beranda">' +
+      '<div class="p-panel b-atas">' +
       '<div class="b-sapaan sapaan"><h1 class="judul-sapaan">Halo, ' + esc(LK.sesi.nama) + '!</h1><p class="teks-lg redup">' + esc(sub) + "</p></div>" +
-      '<section class="b-rangkaian" aria-label="Rangkaian modul per bab">' +
-      K.segmen("bab", "Pilih bab", LK.data.bab.map(function (b) { return { nilai: String(b.id), label: b.judul }; }), String(babDipilih), "segmen-bab") +
-      '<div id="wadah-rangkaian">' + K.rangkaian(babDipilih, { mengalirKe: naik }) + "</div></section>" +
-      '<div class="b-lanjut">' + kartuLanjut(baru) + "</div>" +
-      '<div class="b-ringkasan">' + ringkasan() + "<p>" + K.tautan("#/rekap", "Lihat rekap skor") + "</p></div>" +
-      '<div class="b-modul tumpuk"><h2 class="judul-semua">Semua Modul</h2>' + daftar + "</div>" +
+      '<div class="b-ringkasan">' + ringkasan() + '<p class="b-rekap">' + K.tautan("#/rekap", "Lihat rekap skor", "bar-chart") + "</p></div></div>" +
+      '<section class="p-panel b-rangkaian" aria-labelledby="judul-rangkaian">' +
+      kepala("lightbulb", "judul-rangkaian", "Rangkaian belajar", "Tiap LED menyala saat satu modul selesai",
+        K.segmen("bab", "Pilih bab", LK.data.bab.map(function (b) { return { nilai: String(b.id), label: b.judul }; }), String(babDipilih), "segmen-bab")) +
+      '<div class="p-isi b-rangkaian-isi"><div class="p-kotak b-sirkuit"><div id="wadah-rangkaian">' + K.rangkaian(babDipilih, { mengalirKe: naik }) + "</div></div>" +
+      '<div class="b-lanjut">' + kartuLanjut(baru) + "</div></div></section>" +
+      '<section class="p-panel b-modul" aria-labelledby="judul-semua">' +
+      kepala("book-open", "judul-semua", "Semua Modul", r.selesai + " dari " + total + " modul selesai, dalam " + LK.data.bab.length + " bab") +
+      '<div class="p-isi tumpuk">' + daftar + "</div></section>" +
       "</div>";
 
     return {
