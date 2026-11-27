@@ -2,13 +2,45 @@
 (function () {
   var I = LK.ikon, esc = LK.esc, K = LK.k;
 
-  /* Kepala panel tiap halaman modul: nama bab dan modul di kiri, langkah Materi-Latihan-Kuis di kanan.
+  /* Kepala panel tiap halaman modul: nama bab dan modul, langkah Materi-Latihan-Kuis, dan progres modul.
    * Di HP nama modul sudah ada di top bar, jadi yang tampil hanya langkahnya. */
   LK.kepalaModul = function (n, langkah) {
-    var m = LK.modul(n), bab = LK.data.bab[m.bab - 1];
+    var m = LK.modul(n), bab = LK.data.bab[m.bab - 1], l = LK.langkahModul(n);
     return '<div class="p-panel mod-kepala"><div class="p-judul"><span class="p-ikon" aria-hidden="true">' + I("book-open") + "</span>" +
       '<div><p class="caption">' + esc(bab ? bab.judul : "") + " · Modul " + n + '</p><p class="mod-nama">' + esc(m.judul) + "</p></div></div>" +
-      (langkah ? K.langkah(langkah) : "") + "</div>";
+      (langkah ? K.langkah(langkah) : "") +
+      '<div class="mod-progres">' + K.progresBar((l / 3) * 100, l + " dari 3 langkah selesai", "Progres Modul " + n) + "</div></div>";
+  };
+
+  /* Rel isi modul (desktop): bagian materi, latihan, dan kuis sebagai LED yang disambung kabel. */
+  LK.relModul = function (n, langkah, bagian) {
+    var m = LK.modul(n), l = LK.langkahModul(n), daftar = LK.data.materi[n] || [];
+    function item(href, label, st, sub) {
+      var isi = '<span class="rel-led" aria-hidden="true">' + (st === "selesai" ? I("check", "ikon-sm") : "") + '</span><span class="rel-teks"><span class="rel-label">' + esc(label) + "</span>" + (sub ? '<span class="caption">' + esc(sub) + "</span>" : "") + "</span>";
+      var kls = "rel-item " + st;
+      if (st === "kunci") return '<li class="' + kls + '"><span class="rel-tautan" aria-disabled="true">' + isi + '<span class="sr-only"> (belum terbuka)</span></span></li>';
+      return '<li class="' + kls + '"><a class="rel-tautan" href="' + href + '"' + (st === "aktif" ? ' aria-current="page"' : "") + ">" + isi + "</a></li>";
+    }
+    var h = '<nav class="p-panel rel-modul" aria-label="Isi Modul ' + n + '"><div><p class="caption">Modul ' + n + '</p><p class="mod-nama">' + esc(m.judul) + "</p></div>" +
+      '<p class="rel-grup">Materi</p><ol class="rel-daftar">';
+    daftar.forEach(function (d, i) {
+      var b = i + 1, st = langkah === 1 && b === bagian ? "aktif" : (l >= 1 || (langkah === 1 && b < bagian) || langkah > 1) ? "selesai" : "";
+      h += item("#/modul/" + n + "/materi?bagian=" + b, d.judul, st, "Bagian " + b);
+    });
+    h += '</ol><p class="rel-grup">Uji pemahaman</p><ol class="rel-daftar">' +
+      item("#/modul/" + n + "/latihan", "Latihan", langkah === 2 ? "aktif" : l >= 2 ? "selesai" : l >= 1 || langkah > 2 ? "" : "kunci", m.namaLatihan) +
+      item("#/modul/" + n + "/kuis", "Kuis", langkah === 3 ? "aktif" : l >= 3 ? "selesai" : l >= 2 ? "" : "kunci", "Lulus dengan nilai 70") +
+      "</ol></nav>";
+    return h;
+  };
+
+  /* Tata letak halaman modul. "rel" (bawaan): rel isi di kiri, isi bertumpuk di kanan.
+   * "sorot" (?tata=b): kepala besar berwarna dengan progres modul, isi dua kolom di bawahnya. */
+  LK.tataModul = function () { return /[?&]tata=b\b/.test(location.hash) ? "sorot" : "rel"; };
+  LK.bungkusModul = function (n, langkah, html, bagian) {
+    var t = LK.tataModul();
+    return '<div class="hal-modul tata-' + t + '">' + LK.kepalaModul(n, langkah) +
+      (t === "rel" ? LK.relModul(n, langkah || 1, bagian || 0) : "") + '<div class="modul-isi">' + html + "</div></div>";
   };
 
   LK.kerangkaModul = function (n, langkah, judul, html, opsi) {
@@ -17,7 +49,7 @@
     return {
       judul: judul + " | Modul " + n, aktif: "modul-" + n, kelasIsi: opsi.kelasIsi || "",
       topbar: { judul: "Modul " + n + ": " + m.judul, meta: ["Materi", "Latihan", "Kuis"][langkah - 1], kembali: opsi.kembali || "#/beranda", tutup: opsi.tutup },
-      html: '<div class="hal-modul">' + LK.kepalaModul(n, opsi.tanpaLangkah ? 0 : langkah) + '<div class="modul-isi">' + html + "</div></div>", pasang: opsi.pasang
+      html: LK.bungkusModul(n, opsi.tanpaLangkah ? 0 : langkah, html, opsi.bagian), pasang: opsi.pasang
     };
   };
 
@@ -65,6 +97,7 @@
       "</nav></article>" +
       '<aside class="hanya-desktop lengket">' + K.ilustrasi(isi.ilustrasi) + "</aside></div>";
     return LK.kerangkaModul(n, 1, isi.judul, html, {
+      bagian: b,
       pasang: function (el) {
         var t = el.querySelector('[data-aksi="mulai-latihan"]');
         if (t) t.addEventListener("click", function () { LK.setLangkah(n, 1); LK.buka("#/modul/" + n + "/latihan"); });
