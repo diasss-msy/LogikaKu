@@ -25,7 +25,7 @@
       ? ulang.map(function (u) {
         return '<li class="kartu tumpuk-sm"><div class="baris-antara"><h3>' + esc(u.topik) + "</h3>" + K.chip("error", "Perlu diulang") + "</div>" +
           '<p class="caption">Modul ' + u.modul + ", " + u.benar + " dari " + u.total + " soal benar</p>" +
-          '<div class="deret-tombol">' + K.tombol({ label: "Pelajari lagi", varian: "secondary", href: "#/modul/" + u.modul + "/materi" }) + K.tombol({ label: "Latihan lagi", varian: "ghost", href: "#/modul/" + u.modul + "/latihan" }) + "</div></li>";
+          '<div class="deret-tombol">' + K.tombol({ label: "Pelajari lagi", varian: "secondary", href: LK.tautanTopik(u.modul, u.topik) }) + K.tombol({ label: "Latihan lagi", varian: "ghost", href: "#/modul/" + u.modul + "/latihan" }) + "</div></li>";
       }).join("")
       : '<li class="kartu tumpuk-sm"><h3>Semua materi sudah kamu kuasai</h3><p class="redup">Coba ulangi kuis untuk skor sempurna.</p></li>';
     var skor = LK.data.modul.map(function (m) {
