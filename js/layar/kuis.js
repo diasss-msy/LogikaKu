@@ -55,7 +55,7 @@
         var w = el.querySelector("#kuis");
         function g() {
           var a = document.activeElement, kunci = a && w.contains(a) ? a.getAttribute("data-f") : null;
-          w.innerHTML = gambar();
+          LK.isiHalus(w, gambar());
           if (kunci) { var b = w.querySelector('[data-f="' + kunci + '"]'); if (b && !b.disabled) b.focus(); }
         }
         g();

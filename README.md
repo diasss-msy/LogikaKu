@@ -29,6 +29,7 @@ Alur utama yang bisa diklik: Landing → Masuk → Beranda → Materi → Latiha
 | `index.html` | Satu halaman; rute memakai hash (`#/beranda`, `#/modul/4/kuis`, dan seterusnya). |
 | `css/tokens.css` | Variabel warna, ukuran, jarak, dan gerak. **Dibuat otomatis**, jangan diedit langsung. |
 | `css/dasar.css`, `css/komponen.css`, `css/layar.css` | Tata letak dasar, komponen, dan gaya per layar. Semua nilai memakai token, tanpa kode HEX. |
+| `css/gerak.css` | Animasi tambahan (umpan balik, saklar, LED, ganti tema, kartu hero). Mati otomatis dengan "Kurangi animasi". |
 | `data/contoh.js` | Data contoh: siswa, 10 modul, materi, soal latihan, kuis, dan jawaban benar. |
 | `js/status.js` | Pengaturan tampilan dan progres contoh (`localStorage`). |
 | `js/komponen.js`, `js/ikon.js` | Pembuat komponen (tombol, LED rangkaian, kolom form) dan ikon Lucide. |
