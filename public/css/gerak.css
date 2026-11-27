@@ -193,3 +193,36 @@
 .tema-menjalar::view-transition-old(root), .tema-menjalar::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .tema-menjalar::view-transition-old(root) { z-index: 1; }
 .tema-menjalar::view-transition-new(root) { z-index: 2; }
+
+/* ---------- Halaman modul: animasi masuk ----------
+ * .gerak-modul dipasang dari JS saat halaman dibuka lalu dilepas setelah ±2,6 detik. */
+.gerak-modul .mod-kepala { animation: naik-blur 650ms var(--ease-out) both; }
+.gerak-modul .mod-kepala .p-ikon { animation: pop-masuk 600ms var(--ease-bounce) 150ms both; }
+.gerak-modul .mod-kepala .mod-nama { animation: kata-masuk 700ms var(--ease-out) 120ms both; }
+.gerak-modul .mod-kepala .langkah > li { animation: muncul-naik 400ms var(--ease-out) both; }
+.gerak-modul .mod-kepala .langkah > li:nth-child(1) { animation-delay: 250ms; }
+.gerak-modul .mod-kepala .langkah > li:nth-child(2) { animation-delay: 330ms; }
+.gerak-modul .mod-kepala .langkah > li:nth-child(3) { animation-delay: 410ms; }
+.gerak-modul .mod-kepala .langkah > li:nth-child(4) { animation-delay: 490ms; }
+.gerak-modul .mod-kepala .langkah > li:nth-child(5) { animation-delay: 570ms; }
+.gerak-modul .mod-kepala .langkah .sambung.hidup { transform-origin: left center; animation: arus 400ms var(--ease-out) 450ms both; }
+.gerak-modul .mod-progres .progres > span { transform-origin: left center; animation: arus 900ms var(--ease-out) 450ms both; }
+
+/* Panel isi naik bergiliran. */
+.gerak-modul .modul-isi > .dua-kolom > *, .gerak-modul .modul-isi > #latihan > .dua-kolom > *,
+.gerak-modul .modul-isi > #latihan > :not(.dua-kolom), .gerak-modul .modul-isi > .tengah-720 > *, .gerak-modul .modul-isi > .keadaan {
+  animation: naik-blur 650ms var(--ease-out) both; animation-delay: 200ms;
+}
+.gerak-modul .modul-isi > .dua-kolom > :nth-child(2), .gerak-modul .modul-isi > #latihan > .dua-kolom > :nth-child(2) { animation-delay: 340ms; }
+
+/* Materi: paragraf, contoh, dan kode menyusul satu per satu. */
+.gerak-modul .teks-materi > *, .gerak-modul .materi-baca > .callout, .gerak-modul .materi-baca > .blok-kode {
+  animation: muncul-naik 500ms var(--ease-out) both; animation-delay: calc(450ms + var(--i, 0) * 110ms);
+}
+.gerak-modul .ilustrasi .led, .gerak-modul .ilustrasi svg { animation: pop-masuk 600ms var(--ease-bounce) 500ms both; }
+
+/* Hasil kuis: LED skor menyala satu per satu, kabel ke modul berikutnya mengalir. */
+.gerak-modul .hasil > h1 { animation: kata-masuk 700ms var(--ease-out) 250ms both; }
+.gerak-modul .deret-hasil .led { animation: led-hidup 500ms var(--ease-bounce) both; animation-delay: calc(500ms + var(--i, 0) * 90ms); }
+.gerak-modul .sambungan .kabel-pendek.hidup { transform-origin: left center; animation: arus 500ms var(--ease-out) 1400ms both; }
+.gerak-modul .sambungan .led.nyala { animation: led-hidup 600ms var(--ease-bounce) 1800ms both; }

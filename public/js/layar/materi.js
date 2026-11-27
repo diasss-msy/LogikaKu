@@ -22,8 +22,20 @@
     return {
       judul: judul + " | Modul " + n, aktif: "modul-" + n, kelasIsi: opsi.kelasIsi || "",
       topbar: { judul: "Modul " + n + ": " + m.judul, meta: ["Materi", "Latihan", "Kuis"][langkah - 1], kembali: opsi.kembali || "#/beranda", tutup: opsi.tutup },
-      html: LK.bungkusModul(n, opsi.tanpaLangkah ? 0 : langkah, html), pasang: opsi.pasang
+      html: LK.bungkusModul(n, opsi.tanpaLangkah ? 0 : langkah, html),
+      pasang: function (el) { if (opsi.pasang) opsi.pasang(el); LK.gerakModul(el); }
     };
+  };
+
+  /* Animasi masuk halaman modul. Kelas .gerak-modul hanya dipasang sekali lalu dilepas, supaya
+   * isi yang digambar ulang saat siswa menjawab (kuis, latihan) tidak beranimasi lagi. */
+  LK.gerakModul = function (el) {
+    var H = el && el.querySelector(".hal-modul");
+    if (!H || LK.kurangiGerak()) return;
+    H.querySelectorAll(".deret-hasil .led").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    H.querySelectorAll(".teks-materi > *, .materi-baca > .callout, .materi-baca > .blok-kode").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    H.classList.add("gerak-modul");
+    setTimeout(function () { H.classList.remove("gerak-modul"); }, 2600);
   };
 
   LK.layarTerkunci = function (n) {

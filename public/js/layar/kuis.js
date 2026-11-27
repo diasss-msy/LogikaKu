@@ -168,6 +168,7 @@
       judul: h.lulus ? "Lulus" : "Belum lulus", aktif: "modul-" + n, kelasIsi: "isi-kuis",
       topbar: { judul: "Hasil Kuis Modul " + n, kembali: "#/beranda" }, html: html,
       pasang: function (el) {
+        LK.gerakModul(el);
         var b = el.querySelector('[data-aksi="bahas"]');
         if (b) b.addEventListener("click", function () { var p = el.querySelector("#pembahasan"); p.hidden = !p.hidden; b.setAttribute("aria-expanded", !p.hidden); });
         var l = el.querySelector('[data-aksi="lencana"]');
