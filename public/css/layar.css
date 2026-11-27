@@ -642,44 +642,10 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .modul-isi .materi .nav-bawah { border-top: var(--border-thin) solid var(--color-border); padding-top: var(--space-4); margin-top: var(--space-2); }
 }
 
-/* ---------- Tata letak halaman modul ---------- */
-.rel-modul, .mod-progres { display: none; }
-.rel-grup { font-size: var(--fs-caption); font-weight: var(--weight-bold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: var(--space-2); }
-.rel-daftar { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.rel-item { position: relative; }
-/* Kabel tegak yang menyambung LED antarbaris. */
-.rel-item + .rel-item::before {
-  content: ""; position: absolute; left: 21px; top: -12px; height: 24px; width: 2px; background: var(--color-wire-dead);
-}
-.rel-item.selesai + .rel-item::before { background: var(--color-success-base); }
-.rel-tautan {
-  display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-2);
-  border-radius: var(--radius-md); color: var(--color-text); text-decoration: none; min-height: 52px; position: relative;
-}
-a.rel-tautan:hover { background: var(--color-background); }
-.rel-item.aktif .rel-tautan { background: var(--color-primary-subtle); }
-.rel-item.kunci .rel-tautan { color: var(--color-text-muted); }
-.rel-led {
-  width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; margin-left: 1px;
-  background: var(--color-led-off); border: 2px solid var(--color-border-strong); position: relative; z-index: 1;
-}
-.rel-item.selesai .rel-led { background: var(--color-success-base); border-color: var(--color-success-base); color: var(--color-success-on); }
-.rel-item.aktif .rel-led { background: var(--color-led-on); border-color: var(--color-led-on); box-shadow: var(--shadow-glow); }
-.rel-teks { display: flex; flex-direction: column; min-width: 0; }
-.rel-label { font-weight: var(--weight-bold); font-size: var(--fs-label); line-height: 1.3; }
-
+/* ---------- Halaman modul: kepala sorot ----------
+ * Di desktop kepala modul jadi blok besar berwarna dengan nama modul, langkah, dan progres modul. */
+.mod-progres { display: none; }
 @media (min-width: 1024px) {
-  /* A. Rel isi di kiri, isi di kanan bertumpuk satu kolom. */
-  .hal-modul.tata-rel { display: grid; grid-template-columns: 264px minmax(0, 1fr); grid-template-areas: "rel isi"; align-items: start; }
-  .tata-rel .mod-kepala { display: none; }
-  .tata-rel .rel-modul { display: flex; grid-area: rel; position: sticky; top: var(--space-5); gap: var(--space-2); padding: var(--space-4); }
-  .tata-rel .modul-isi { grid-area: isi; }
-  .tata-rel .modul-isi .dua-kolom, .tata-rel .modul-isi > #latihan > .dua-kolom { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-5); }
-  .tata-rel .materi > aside { display: none; }
-  .tata-rel .materi-baca .hanya-hp { display: block !important; }
-  .tata-rel .modul-isi .tengah-720 { max-width: 760px; }
-
-  /* B. Kepala besar berwarna dengan progres modul, isi dua kolom di bawahnya. */
   .tata-sorot .mod-kepala { background: var(--color-primary-subtle); border-color: transparent; padding: var(--space-6); row-gap: var(--space-4); }
   .tata-sorot .mod-kepala .mod-nama { font-size: var(--fs-h1); font-weight: var(--weight-extrabold); }
   .tata-sorot .mod-kepala .p-ikon { width: 48px; height: 48px; background: var(--color-surface); }
