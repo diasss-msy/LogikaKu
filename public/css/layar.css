@@ -612,3 +612,32 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 }
 .daftar-layar a:hover { border-color: var(--color-primary-base); }
 .daftar-layar .mono { font-size: var(--fs-caption); color: var(--color-primary-base); }
+
+/* ---------- Halaman modul: gaya panel seperti Beranda ----------
+ * Kepala panel (bab, modul, langkah) di atas; di desktop isi utama dan panel samping duduk di
+ * panel putih membulat. Di HP hanya langkah yang tampil di kepala, isi tetap polos supaya
+ * tombol navigasi bawah yang menempel tidak terganggu. */
+.hal-modul { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.modul-isi { min-width: 0; }
+.mod-kepala { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-5); }
+.mod-nama { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--fs-h3); line-height: var(--lh-heading); }
+@media (max-width: 1023px) {
+  .mod-kepala { background: transparent; border: 0; padding: 0; border-radius: 0; }
+  .mod-kepala .p-judul { display: none; }
+}
+@media (min-width: 1024px) {
+  .hal-modul { gap: var(--space-5); }
+  .mod-kepala { padding: var(--space-4) var(--space-5); }
+  .mod-kepala .langkah { background: var(--color-background); border-radius: var(--radius-full); padding: var(--space-2) var(--space-4); }
+  .modul-isi > .dua-kolom > :not(aside),
+  .modul-isi > #latihan > .dua-kolom > *,
+  .modul-isi .kartu-kuis, .modul-isi .hasil,
+  .modul-isi > .tumpuk:not(.tengah-720), .modul-isi > .keadaan {
+    background: var(--color-surface); border: var(--border-thin) solid var(--color-border);
+    border-radius: 24px; padding: var(--space-5) var(--space-6);
+  }
+  .modul-isi > .dua-kolom, .modul-isi > #latihan > .dua-kolom { align-items: start; gap: var(--space-5); }
+  .modul-isi .ilustrasi { border-radius: 24px; }
+  .modul-isi .kartu-kuis, .modul-isi .hasil { padding: var(--space-6) var(--space-7); }
+  .modul-isi .materi .nav-bawah { border-top: var(--border-thin) solid var(--color-border); padding-top: var(--space-4); margin-top: var(--space-2); }
+}

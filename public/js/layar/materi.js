@@ -2,13 +2,22 @@
 (function () {
   var I = LK.ikon, esc = LK.esc, K = LK.k;
 
+  /* Kepala panel tiap halaman modul: nama bab dan modul di kiri, langkah Materi-Latihan-Kuis di kanan.
+   * Di HP nama modul sudah ada di top bar, jadi yang tampil hanya langkahnya. */
+  LK.kepalaModul = function (n, langkah) {
+    var m = LK.modul(n), bab = LK.data.bab[m.bab - 1];
+    return '<div class="p-panel mod-kepala"><div class="p-judul"><span class="p-ikon" aria-hidden="true">' + I("book-open") + "</span>" +
+      '<div><p class="caption">' + esc(bab ? bab.judul : "") + " · Modul " + n + '</p><p class="mod-nama">' + esc(m.judul) + "</p></div></div>" +
+      (langkah ? K.langkah(langkah) : "") + "</div>";
+  };
+
   LK.kerangkaModul = function (n, langkah, judul, html, opsi) {
     opsi = opsi || {};
     var m = LK.modul(n);
     return {
       judul: judul + " | Modul " + n, aktif: "modul-" + n, kelasIsi: opsi.kelasIsi || "",
       topbar: { judul: "Modul " + n + ": " + m.judul, meta: ["Materi", "Latihan", "Kuis"][langkah - 1], kembali: opsi.kembali || "#/beranda", tutup: opsi.tutup },
-      html: (opsi.tanpaLangkah ? "" : K.langkah(langkah)) + html, pasang: opsi.pasang
+      html: '<div class="hal-modul">' + LK.kepalaModul(n, opsi.tanpaLangkah ? 0 : langkah) + '<div class="modul-isi">' + html + "</div></div>", pasang: opsi.pasang
     };
   };
 
