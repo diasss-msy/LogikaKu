@@ -197,6 +197,25 @@ window.LK = window.LK || {};
     tampilkan(LK.layar.tidakAda(), pertama);
     pertama = false;
   }
+  /* Bingkai clip-path untuk tema yang menjalar seperti arus listrik: tepinya bergerigi acak,
+   * beberapa cabang kilat melesat lebih jauh, dan bentuknya berubah tiap bingkai sehingga tampak berkedip.
+   * Bingkai terakhir menutup seluruh layar. */
+  LK.bingkaiKilat = function (x, y, jari) {
+    var bingkai = [], N = 22, T = 72;
+    for (var f = 0; f <= N; f++) {
+      var t = f / N, k = t < 1 ? 1 - Math.pow(1 - t, 2.2) : 1;
+      var r = jari * 1.08 * k, titik = [];
+      var cabang = {};
+      if (t < 1) for (var c = 0; c < 4 + Math.floor(Math.random() * 4); c++) cabang[Math.floor(Math.random() * T)] = 1.35 + Math.random() * 0.7;
+      for (var i = 0; i < T; i++) {
+        var sudut = (i / T) * Math.PI * 2 + (Math.random() - 0.5) * 0.05;
+        var rr = t < 1 ? r * (cabang[i] || (0.82 + Math.random() * 0.3)) : jari * 1.6;
+        titik.push((x + Math.cos(sudut) * rr).toFixed(1) + "px " + (y + Math.sin(sudut) * rr).toFixed(1) + "px");
+      }
+      bingkai.push({ clipPath: "polygon(" + titik.join(",") + ")", offset: t });
+    }
+    return bingkai;
+  };
   LK.muatUlang = arahkan;
   LK.buka = function (hash) { if (location.hash === hash) arahkan(); else location.hash = hash; };
   LK.gantiHashDiam = function (hash) { try { history.replaceState(null, "", hash); } catch (e) { /* abaikan */ } };
@@ -222,8 +241,7 @@ window.LK = window.LK || {};
           r.classList.add("tema-menjalar");
           var vt = document.startViewTransition(terapkan);
           vt.ready.then(function () {
-            r.animate({ clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + jari + "px at " + x + "px " + y + "px)"] },
-              { duration: 750, easing: "cubic-bezier(0.65, 0, 0.35, 1)", pseudoElement: "::view-transition-new(root)" });
+            r.animate(LK.bingkaiKilat(x, y, jari), { duration: 950, easing: "linear", pseudoElement: "::view-transition-new(root)" });
           }).catch(function () { /* abaikan */ });
           vt.finished.then(function () { r.classList.remove("tema-menjalar"); }, function () { r.classList.remove("tema-menjalar"); });
         } else {
