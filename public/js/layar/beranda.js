@@ -46,6 +46,63 @@
       '<div class="kotak-angka"><strong>' + (r.rata === null ? "–" : r.rata) + '</strong><span>Rata-rata skor</span></div></section>';
   }
 
+  /* Gerak Beranda: panel naik bergiliran, angka menghitung, LED dan kabel menyala berurutan,
+   * kartu modul muncul saat digulir. Mati total dengan "Kurangi animasi". */
+  function nyalakanRangkaian(el, jeda) {
+    var w = el.querySelector("#wadah-rangkaian .rangkaian");
+    if (!w || LK.kurangiGerak()) return;
+    w.querySelectorAll(".rangkaian-led").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    w.querySelectorAll(".rangkaian-kabel").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    w.style.setProperty("--jeda", jeda + "ms");
+    w.classList.add("nyalakan");
+  }
+
+  function hitungAngka(strong, tunda) {
+    var asli = strong.textContent, m = asli.match(/^(\d+)(.*)$/);
+    if (!m) return;
+    var akhir = parseInt(m[1], 10), sisa = m[2], durasi = 900, mulai = null;
+    if (!akhir) return;
+    /* Nilai asli tetap ada di teks (untuk pembaca layar); yang menghitung hanya salinan hiasan. */
+    strong.innerHTML = '<span class="sr-only">' + LK.esc(asli) + '</span><span aria-hidden="true">0' + LK.esc(sisa) + "</span>";
+    var tampil = strong.lastChild;
+    setTimeout(function () {
+      function langkah(t) {
+        if (mulai === null) mulai = t;
+        var k = Math.min(1, (t - mulai) / durasi), e = 1 - Math.pow(1 - k, 3);
+        tampil.textContent = Math.round(akhir * e) + sisa;
+        if (k < 1) requestAnimationFrame(langkah); else strong.textContent = asli;
+      }
+      requestAnimationFrame(langkah);
+    }, tunda);
+  }
+
+  function gerakBeranda(el, naik) {
+    var B = el.querySelector(".beranda");
+    if (!B || LK.kurangiGerak()) return;
+    B.classList.add("gerak-beranda");
+    B.querySelectorAll(".p-panel").forEach(function (p, i) { p.style.setProperty("--i", i); });
+    B.querySelectorAll(".b-ringkasan .kotak-angka").forEach(function (k, i) {
+      k.style.setProperty("--i", i);
+      hitungAngka(k.querySelector("strong"), 250 + i * 90);
+    });
+    if (!naik) nyalakanRangkaian(el, 350);
+
+    var kartu = B.querySelectorAll(".b-modul .kartu-modul");
+    if (!("IntersectionObserver" in window)) return;
+    kartu.forEach(function (k) { k.classList.add("muncul"); });
+    var urut = 0, jam = null;
+    var io = new IntersectionObserver(function (isi) {
+      isi.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        e.target.style.setProperty("--i", urut++);
+        e.target.classList.add("tampak");
+        clearTimeout(jam); jam = setTimeout(function () { urut = 0; }, 120);
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    kartu.forEach(function (k) { io.observe(k); });
+  }
+
   LK.rute("/beranda", function (ctx) {
     if (ctx.q.memuat) {
       setTimeout(function () { if (/memuat/.test(location.hash)) { LK.gantiHashDiam("#/beranda"); LK.muatUlang(); } }, 1600);
@@ -93,7 +150,9 @@
         K.pasangSegmen(el, "bab", function (v) {
           babDipilih = parseInt(v, 10);
           el.querySelector("#wadah-rangkaian").innerHTML = K.rangkaian(babDipilih);
+          nyalakanRangkaian(el, 0);
         });
+        gerakBeranda(el, !!naik);
       }
     };
   });
