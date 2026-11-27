@@ -16,6 +16,14 @@ python3 -m http.server 8000
 
 Lalu buka <http://localhost:8000>. Font diambil dari Google Fonts, jadi tanpa internet tampilannya memakai font cadangan.
 
+## Versi online (GitHub Pages)
+
+Setiap push ke `main` diterbitkan otomatis ke <https://diasss-msy.github.io/LogikaKu/> lewat `.github/workflows/pages.yml`. Yang ikut terbit hanya `index.html`, `css/`, `js/`, dan `data/`.
+
+Syaratnya, repo harus publik dan **Settings > Pages > Source** diisi **GitHub Actions**. Selama repo masih privat, workflow dilewati.
+
+Ini tetap prototype: login masih pura-pura dan progres hanya tersimpan di browser masing-masing.
+
 ## Daftar semua layar
 
 Buka `#/layar` (misalnya <http://localhost:8000/#/layar>). Halaman ini berisi tautan ke 39 layar dari desain (34 layar handoff plus 5 layar 27 November), termasuk state khusus seperti `?gagal`, `?kosong`, `?offline`, `?memuat`, dan `?demo=...`. Tombol "Pakai data Dimas lagi" mengembalikan progres contoh.
