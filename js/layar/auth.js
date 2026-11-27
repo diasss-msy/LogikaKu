@@ -76,7 +76,7 @@
         '<div class="kartu kartu-melayang"><p class="caption">Beranda</p><p class="h3-like">Arus belajarmu sampai Modul 4.</p>' + rangkaianMini() + "</div></div>" +
         '<p class="caption akun-merek-kaki">Media belajar logika dan algoritma untuk kelas X TKJ dan RPL.</p></aside>' +
         '<div class="akun-kanan"><header class="topbar dengan-kembali akun-topbar"><a class="tombol-ikon" href="' + o.kembali + '" aria-label="Kembali">' + I("chevron-left", "ikon-lg") + "</a>" +
-        K.logo("#/landing") + "</header>" +
+        K.logo("#/landing") + '<span class="spacer"></span>' + K.tombolTema() + "</header>" +
         '<main id="utama" class="akun-form" tabindex="-1">' + o.html + "</main></div></div>",
       pasang: o.pasang
     };
@@ -232,7 +232,7 @@
     var html =
       '<header class="landing-nav">' + K.logo("#/landing") +
       '<nav class="landing-tautan" aria-label="Bagian halaman"><a href="#/landing" data-gulir="modul">Modul</a><a href="#/landing" data-gulir="cara">Cara Belajar</a><a href="#/landing" data-gulir="tentang">Tentang</a></nav>' +
-      '<div class="baris landing-aksi">' + K.tombol({ label: "Masuk", varian: "secondary", href: "#/masuk", kelas: "hanya-tablet" }) + K.tombol({ label: "Mulai Belajar", href: "#/daftar" }) + "</div></header>" +
+      '<div class="baris landing-aksi">' + K.tombol({ label: "Masuk", varian: "secondary", href: "#/masuk", kelas: "hanya-tablet" }) + K.tombol({ label: "Mulai Belajar", href: "#/daftar" }) + K.tombolTema() + "</div></header>" +
       '<main id="utama" tabindex="-1">' +
       '<section class="hero" aria-labelledby="hero-judul"><div class="titik-breadboard" aria-hidden="true"></div>' +
       '<svg class="jalur-pcb" aria-hidden="true" viewBox="0 0 1280 900" preserveAspectRatio="none"><path d="M250 64 H420 L470 104 H560 M720 104 H830 L880 80 H970 M300 390 H370 L440 230 L520 125 M790 125 L870 230 L910 380 H1075"/></svg>' +

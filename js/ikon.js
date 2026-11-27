@@ -27,7 +27,9 @@ window.LK = window.LK || {};
     mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
     "log-out": '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
     "chevron-up": '<path d="m18 15-6-6-6 6"/>',
-    "chevron-down": '<path d="m6 9 6 6 6-6"/>'
+    "chevron-down": '<path d="m6 9 6 6 6-6"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+    moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'
   };
   LK.ikon = function (nama, kelas, label) {
     var aria = label ? ' role="img" aria-label="' + label + '"' : ' aria-hidden="true"';

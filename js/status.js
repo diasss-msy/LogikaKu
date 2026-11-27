@@ -28,6 +28,11 @@ window.LK = window.LK || {};
     if (LK.pref.teks === "besar") r.setAttribute("data-teks", "besar"); else r.removeAttribute("data-teks");
     if (LK.pref.gerak === "kurang") r.setAttribute("data-gerak", "kurang"); else r.removeAttribute("data-gerak");
   };
+  /* Tema yang sedang tampil: dari pilihan, atau dari pengaturan perangkat kalau "otomatis". */
+  LK.temaAktif = function () {
+    if (LK.pref.tema === "terang" || LK.pref.tema === "gelap") return LK.pref.tema;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "gelap" : "terang";
+  };
   LK.ubahPref = function (k, v) { LK.pref[k] = v; simpan.tulis(PREF, LK.pref); LK.terapkanPref(); };
   LK.kurangiGerak = function () {
     return LK.pref.gerak === "kurang" || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
