@@ -94,7 +94,7 @@
       shell: "polos", judul: o.judul,
       html: '<div class="akun">' +
         '<aside class="akun-merek" aria-hidden="true"><div class="titik-breadboard"></div>' +
-        '<a class="logo logo-terang" href="#/landing" tabindex="-1"><span class="logo-chip kuning">L</span>LogikaKu</a>' +
+        '<a class="logo logo-terang" href="#/landing" tabindex="-1"><span class="logo-chip">' + K.tanda() + '</span>LogikaKu</a>' +
         '<div class="akun-merek-isi"><p class="akun-merek-judul">Satu akun, semua progresmu tersimpan.</p>' +
         "<p>Belajar di HP saat istirahat, lanjutkan di laptop lab. Rangkaianmu tetap menyala di modul terakhir.</p>" +
         '<div class="kartu kartu-melayang"><p class="caption">Beranda</p><p class="h3-like">Arus belajarmu sampai Modul 4.</p>' + rangkaianMini() + "</div></div>" +
@@ -285,6 +285,108 @@
    * menyebar dari tengah, isi bagian muncul bergiliran saat digulir, judul bagian "terisi" seiring
    * guliran, panel Cara belajar membesar, dan kabel di kaki halaman tergambar sampai LED menyala.
    * Elemen tidak ditambah atau dibuang; tanpa JS atau dengan "Kurangi animasi" semuanya tampil diam. */
+  /* ---------- Intro logo di Landing ----------
+   * Gaya "titik jatuh": LED kuning jatuh dari atas lewat kabel, mendarat di tengah, cahayanya
+   * membesar sampai layar jadi biru, lalu logo muncul dengan cincin dan serpihan yang memancar.
+   * Setelah itu tanda logo terbang ke logo besar di hero dan halaman terbuka dari titik LED,
+   * disusul animasi landing biasa.
+   * Hanya sekali per tab, bisa dilewati (klik, Esc, gulir, tombol "Lewati"),
+   * dan tidak tampil sama sekali dengan "Kurangi animasi". */
+  var KUNCI_INTRO = "logikaku-intro";
+  function serpihan() {
+    var jenis = ["bulat", "kotak", "cacing", "bulat", "titik", "cacing", "kotak", "bulat", "titik", "cacing", "bulat", "kotak", "titik", "cacing"];
+    var jari = Math.min(innerWidth, innerHeight) * 0.36 + 60;
+    return jenis.map(function (j, i) {
+      var sudut = (i / jenis.length) * Math.PI * 2 + (i % 2 ? 0.2 : -0.15);
+      var r = jari * (0.72 + ((i * 37) % 10) / 22);
+      var x = Math.round(Math.cos(sudut) * r), y = Math.round(Math.sin(sudut) * r * 0.82);
+      var isi = j === "cacing" ? '<svg viewBox="0 0 24 12"><path d="M1 6c3-5 6 5 9 0s6-5 9 0 3 3 4 2"/></svg>' : "";
+      return '<span class="intro-serpih ' + j + (i % 5 === 2 ? " kuning" : "") + '" style="--x:' + x + "px;--y:" + y + "px;--r:" + ((i * 47) % 180 - 90) + "deg;--i:" + i + '">' + isi + "</span>";
+    }).join("");
+  }
+  LK.introLogo = function (L, lanjut) {
+    var sudah = false;
+    try { sudah = sessionStorage.getItem(KUNCI_INTRO) === "1"; } catch (e) { sudah = false; }
+    if (!L || LK.kurangiGerak() || sudah || !window.requestAnimationFrame) { lanjut(); return; }
+    try { sessionStorage.setItem(KUNCI_INTRO, "1"); } catch (e) { /* abaikan */ }
+
+    var layar = document.createElement("div");
+    layar.className = "intro-logo";
+    layar.setAttribute("aria-hidden", "true");
+    /* Skala bola biru supaya menutupi seluruh layar (diameter awal 18px). */
+    layar.style.setProperty("--penuh", String(Math.ceil(Math.hypot(innerWidth, innerHeight) / 18) + 2));
+    layar.innerHTML =
+      '<div class="intro-jatuh"><svg class="intro-jejak" viewBox="0 0 30 300" preserveAspectRatio="none">' +
+      '<path class="j1" d="M15 0c-6 40 8 70 0 110s6 70 0 110 4 50 0 80"/><path class="j2" d="M5 40c-3 30 4 60 0 90s3 50 0 80"/><path class="j3" d="M26 20c3 30-4 60 0 90s-3 40 0 60"/></svg>' +
+      '<span class="intro-bola"></span></div>' +
+      '<div class="intro-isi"><span class="intro-halo"></span><span class="intro-cincin"></span>' + serpihan() +
+      '<div class="intro-tengah"><svg class="intro-tanda" viewBox="0 0 64 64"><rect class="intro-kotak" width="64" height="64" rx="14" fill="#14213D"/>' +
+      '<path class="intro-kabel" d="M22 14v30h13" fill="none" stroke="#FFC233" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>' +
+      '<circle class="intro-cahaya" cx="45" cy="44" r="12" fill="#FFC233" opacity=".25"/><circle class="intro-led" cx="45" cy="44" r="7" fill="#FFC233"/></svg>' +
+      '<span class="intro-nama">' + "LogikaKu".split("").map(function (h, i) { return '<span style="--i:' + i + '">' + h + "</span>"; }).join("") + "</span></div>" +
+      '<p class="intro-slogan">Belajar logika dan algoritma</p></div>';
+    var lewati = document.createElement("button");
+    lewati.type = "button"; lewati.className = "intro-lewati"; lewati.textContent = "Lewati";
+    document.body.appendChild(layar); document.body.appendChild(lewati);
+    document.documentElement.classList.add("intro-jalan");
+    L.classList.add("dari-intro");
+
+    var selesai = false, sudahLanjut = false, jam = [], tanda = layar.querySelector(".intro-tanda"), terbang = null;
+    function lanjutLanding() { if (sudahLanjut) return; sudahLanjut = true; lanjut(); }
+    function bersih() {
+      jam.forEach(clearTimeout);
+      document.removeEventListener("keydown", tombol); window.removeEventListener("wheel", akhiri); window.removeEventListener("touchmove", akhiri);
+      if (layar.parentNode) layar.remove(); if (lewati.parentNode) lewati.remove(); if (terbang && terbang.parentNode) terbang.remove();
+      document.documentElement.classList.remove("intro-jalan");
+      L.classList.remove("dari-intro");
+    }
+    function akhiri() { if (selesai) return; selesai = true; bersih(); lanjutLanding(); }
+    function tombol(e) { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") akhiri(); }
+    lewati.addEventListener("click", akhiri);
+    layar.addEventListener("click", akhiri);
+    document.addEventListener("keydown", tombol);
+    window.addEventListener("wheel", akhiri, { passive: true }); window.addEventListener("touchmove", akhiri, { passive: true });
+
+    /* Tahap 1 (0 sampai 1,6 detik) diatur CSS: kabel, LED, tulisan. Tahap 2 di sini. */
+    jam.push(setTimeout(function () {
+      if (selesai) return;
+      var tujuan = L.querySelector(".hero-isi > .logo-chip");
+      var a = tanda.getBoundingClientRect();
+      var led = { x: a.left + a.width * 45 / 64, y: a.top + a.height * 44 / 64 };
+      layar.classList.add("intro-buka");
+      lewati.remove();
+      /* Landing mulai bergerak di balik layar yang terbuka. */
+      lanjutLanding();
+      /* Tanda terbang ke logo besar di hero. */
+      /* Tanda dipindah ke lapisan sendiri supaya tidak ikut tertutup lubang yang membuka halaman. */
+      terbang = document.createElement("div");
+      terbang.className = "intro-terbang"; terbang.setAttribute("aria-hidden", "true");
+      terbang.style.left = a.left + "px"; terbang.style.top = a.top + "px"; terbang.style.width = a.width + "px"; terbang.style.height = a.height + "px";
+      terbang.appendChild(tanda); document.body.appendChild(terbang);
+      if (tujuan && terbang.animate) {
+        var b = tujuan.getBoundingClientRect();
+        var skala = b.width / a.width, dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        terbang.animate([{ transform: "none" }, { transform: "translate(" + dx + "px," + dy + "px) scale(" + skala + ")" }],
+          { duration: 800, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" });
+      }
+      /* Lubang melingkar dari titik LED membesar sampai menutupi layar. */
+      var jauh = Math.hypot(Math.max(led.x, innerWidth - led.x), Math.max(led.y, innerHeight - led.y)) + 40, mulai = null;
+      function buka(t) {
+        if (selesai) return;
+        if (mulai === null) mulai = t;
+        var k = Math.min(1, (t - mulai) / 900), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2, r = e * jauh;
+        var m = "radial-gradient(circle at " + led.x + "px " + led.y + "px, transparent " + r + "px, #000 " + (r + 1.5) + "px)";
+        layar.style.webkitMaskImage = m; layar.style.maskImage = m;
+        if (k < 1) requestAnimationFrame(buka);
+      }
+      requestAnimationFrame(buka);
+      jam.push(setTimeout(function () {
+        if (tujuan) tujuan.classList.add("intro-tiba");
+        selesai = true; bersih();
+      }, 900));
+    }, 2900));
+  };
+
   LK.gerakLanding = function (L) {
     if (!L || LK.kurangiGerak()) return;
     L.classList.add("gerak-landing");
@@ -401,7 +503,7 @@
       '<main id="utama" tabindex="-1">' +
       '<section class="hero" aria-labelledby="hero-judul"><div class="titik-breadboard" aria-hidden="true"></div>' +
       '<svg class="jalur-pcb" aria-hidden="true" viewBox="0 0 1280 900" preserveAspectRatio="none"><path d="M250 64 H420 L470 104 H560 M720 104 H830 L880 80 H970 M300 390 H370 L440 230 L520 125 M790 125 L870 230 L910 380 H1075"/></svg>' +
-      '<div class="hero-isi"><span class="logo-chip besar" aria-hidden="true">L</span>' +
+      '<div class="hero-isi"><span class="logo-chip besar" aria-hidden="true">' + K.tanda() + '</span>' +
       '<h1 id="hero-judul" class="judul-hero"><span>Belajar logika jadi</span> <span class="biru">semudah menyalakan lampu</span></h1>' +
       '<p class="teks-lg redup hero-desk">Media belajar interaktif untuk siswa SMK kelas X: dari proposisi dan tabel kebenaran sampai flowchart, percabangan, dan perulangan.</p>' +
       '<p class="baris hero-led"><span class="deret-led" aria-hidden="true">' + led10 + '</span><span class="caption">10 modul dalam 2 bab: Logika dan Algoritma</span></p>' +
@@ -436,7 +538,8 @@
     return {
       shell: "polos", judul: "Belajar logika jadi semudah menyalakan lampu", html: '<div class="landing">' + html + "</div>",
       pasang: function (el) {
-        LK.gerakLanding(document.querySelector(".landing"));
+        var L = document.querySelector(".landing");
+        LK.introLogo(L, function () { LK.gerakLanding(L); });
         /* Tombol di bawah: gulir halus ke atas, lalu buka Daftar/Masuk (atau Beranda kalau sudah masuk). */
         el.querySelectorAll('[data-aksi="mulai-atas"], [data-aksi="masuk-atas"]').forEach(function (a) {
           a.addEventListener("click", function (e) {

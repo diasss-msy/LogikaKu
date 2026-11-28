@@ -415,9 +415,12 @@
           : umpan("salah", benar.length + " dari " + F.slot.length + " slot benar", "<ul>" + salah.map(function (x) { return "<li>" + esc(ALASAN[x.id]) + "</li>"; }).join("") + "</ul>")) : "") + "</div>" +
         (s.dicek ? tombolAkhir("Ulang") : K.tombol({ label: "Cek Flowchart", aksi: "cek", penuh: true, nonaktif: !semua, syaratId: "syarat-fc", attr: ' data-f="cek"' }) + (semua ? "" : '<p class="syarat" id="syarat-fc">Aktif setelah semua slot terisi.</p>') +
           '<p class="tengah"><button type="button" class="tautan" data-aksi="ulang" data-f="ulang">Ulang</button></p>') + "</div>";
-      return '<div class="tumpuk"><div class="kartu"><h1 class="h3-like judul-soal">Genap atau ganjil?</h1><p>Susun flowchart untuk mengecek apakah bilangan n genap atau ganjil.</p></div>' +
-        '<p class="caption">Seret blok ke slot, atau ketuk blok lalu ketuk slotnya. Di keyboard: Enter untuk memilih blok, panah atas/bawah untuk pindah slot, Enter untuk menaruh.</p>' +
-        '<div class="tata-fc">' + palet + kanvas + panel + "</div></div>";
+      var terisi = F.slot.filter(function (x) { return s.isi[x.id]; }).length;
+      return '<section class="p-panel fc-papan" aria-labelledby="judul-soal-fc"><div class="p-kepala"><div class="p-judul"><span class="p-ikon">' + I("lightbulb") + "</span>" +
+        '<div><h1 id="judul-soal-fc" class="h3-like judul-soal">Genap atau ganjil?</h1><p class="caption">Susun flowchart untuk mengecek apakah bilangan n genap atau ganjil.</p></div></div>' +
+        '<div class="p-aksi"><span class="fc-hitung" aria-hidden="true"><strong>' + terisi + "</strong>/" + F.slot.length + " slot terisi</span></div></div>" +
+        '<p class="caption fc-cara">Seret blok ke slot, atau ketuk blok lalu ketuk slotnya. Di keyboard: Enter untuk memilih blok, panah atas/bawah untuk pindah slot, Enter untuk menaruh.</p>' +
+        '<div class="tata-fc">' + palet + kanvas + panel + "</div></section>";
     }
     return {
       judul: "Susun flowchart", html: '<div id="latihan"></div>', kelasIsi: "isi-lebar",

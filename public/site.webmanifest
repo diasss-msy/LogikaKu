@@ -1,0 +1,15 @@
+{
+  "name": "LogikaKu",
+  "short_name": "LogikaKu",
+  "description": "Media belajar logika dan algoritma untuk siswa SMK kelas X TKJ dan RPL.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F3F6F4",
+  "theme_color": "#14213D",
+  "lang": "id",
+  "icons": [
+    { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "ikon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

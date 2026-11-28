@@ -7,10 +7,11 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /*
- * Akun siswa: daftar, masuk, keluar, data akun, dan ganti kata sandi.
+ * Akun siswa: daftar, masuk, keluar, data akun, ubah profil, dan ganti kata sandi.
  * Dipanggil dari tampilan lewat fetch dengan sesi cookie Laravel dan token CSRF.
  */
 class AkunController extends Controller
@@ -90,6 +91,33 @@ class AkunController extends Controller
         $request->session()->regenerateToken();
 
         return response()->json(['csrf' => csrf_token()]);
+    }
+
+    /* Ubah nama dan email. Mengganti email wajib memakai kata sandi saat ini,
+     * supaya orang yang meminjam perangkat tidak bisa mengambil alih akun. */
+    public function ubahProfil(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $this->rapikanEmail($request);
+        $gantiEmail = $request->input('email') !== $user->email;
+
+        $data = $request->validate([
+            'nama' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'sandi' => $gantiEmail ? ['required', 'string', 'current_password'] : ['nullable'],
+        ], [
+            'nama.required' => 'Nama panggilan belum diisi.',
+            'nama.max' => 'Nama panggilan maksimal 20 karakter.',
+            'email.required' => 'Email belum diisi.',
+            'email.email' => 'Format email belum benar. Contoh: nama@email.com',
+            'email.unique' => 'Email ini sudah dipakai akun lain.',
+            'sandi.required' => 'Masukkan kata sandi untuk mengganti email.',
+            'sandi.current_password' => 'Kata sandi belum cocok.',
+        ]);
+
+        $user->forceFill(['name' => trim($data['nama']), 'email' => $data['email']])->save();
+
+        return response()->json(['akun' => $user->untukTampilan()]);
     }
 
     public function gantiSandi(Request $request): JsonResponse

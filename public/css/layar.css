@@ -151,8 +151,6 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .akun-form { padding-top: var(--space-7); }
 }
 @media (min-width: 768px) and (max-width: 1023px) { .akun-form { padding-top: var(--space-7); } }
-:root .logo-chip.kuning, :root[data-theme] .logo-chip.kuning { background: var(--color-accent-base); color: var(--color-accent-on); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-chip.kuning { background: var(--color-accent-base); } }
 .titik-breadboard {
   position: absolute; inset: 0; pointer-events: none;
   background-image: radial-gradient(circle, rgba(127, 151, 140, 0.45) 1.5px, transparent 1.6px);
@@ -653,3 +651,83 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .tata-sorot .mod-progres { display: block; flex-basis: 100%; }
   .tata-sorot .mod-progres .progres { background: var(--color-surface); }
 }
+.ubah-profil .form-panel { max-width: 520px; }
+
+/* ---------- Latihan flowchart gaya panel ----------
+ * Satu panel "papan": kepala soal, lalu palet, kanvas bergaris PCB, dan petunjuk.
+ * Di HP palet tetap berupa laci di bawah layar. */
+.fc-papan { gap: var(--space-4); }
+.fc-papan .judul-soal { font-size: var(--fs-h2); }
+.fc-hitung { display: inline-flex; align-items: baseline; gap: 0; padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); background: var(--color-background); color: var(--color-text-muted); font-size: var(--fs-caption); white-space: nowrap; }
+.fc-hitung strong { color: var(--color-text); font-size: var(--fs-label); }
+.fc-papan .kanvas-fc {
+  border: 0; border-radius: 18px; padding: var(--space-5) var(--space-3);
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--color-primary-base) 22%, transparent) 1.2px, transparent 1.6px) 0 0 / 20px 20px,
+    var(--color-background);
+}
+.fc-papan .slot-fc { background: color-mix(in srgb, var(--color-surface) 70%, transparent); }
+.fc-papan .slot-fc.bisa { background: var(--color-primary-subtle); }
+.fc-papan .slot-fc.terisi { background: transparent; }
+.fc-papan .slot-fc.benar { background: var(--color-success-subtle); }
+.fc-papan .slot-fc.salah { background: var(--color-error-subtle); }
+@media (min-width: 1024px) {
+  .fc-papan .tata-fc { grid-template-columns: 260px minmax(0, 1fr) 300px; gap: var(--space-4); }
+  .fc-papan .palet { box-shadow: none; border: 0; border-radius: 18px; background: var(--color-background); }
+  .fc-papan .palet-kepala .label { color: var(--color-text-muted); }
+}
+@media (max-width: 1023.98px) { .fc-hitung { display: none; } }
+
+/* ---------- Rekap Skor gaya panel ---------- */
+.rekap { width: 100%; display: flex; flex-direction: column; gap: var(--space-4); }
+.r-atas { gap: var(--space-4); }
+.r-atas .sapaan { gap: var(--space-1); }
+.r-ringkasan .kotak-angka { background: var(--color-background); border: 0; border-radius: 18px; }
+.r-ringkasan .kotak-angka strong { font-size: var(--fs-h1); }
+.rekap .deret-lencana { gap: var(--space-4) var(--space-2); }
+.r-bawah { display: flex; flex-direction: column; gap: var(--space-4); }
+.r-ulang { background: var(--color-background); border-radius: 18px; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+.r-ulang h3 { font-size: var(--fs-body); }
+.r-ulang-beres { flex-direction: row; align-items: center; gap: var(--space-3); }
+.rekap .daftar-skor { background: var(--color-background); border: 0; border-radius: 18px; }
+.rekap .baris-skor { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); padding: var(--space-3) var(--space-4); }
+.rekap .baris-skor + .baris-skor { border-top-color: var(--color-border); }
+.r-no { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: var(--weight-bold); font-size: var(--fs-label);
+  background: var(--color-surface); border: var(--border-thin) solid var(--color-border); color: var(--color-text-muted); }
+.baris-skor:not(.kosong) .r-no { color: var(--color-text); }
+.r-skor-isi { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.r-bar { display: block; height: 6px; border-radius: var(--radius-full); background: var(--color-border); overflow: hidden; margin-top: var(--space-1); max-width: 240px; }
+.r-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--color-error-base); }
+.r-bar.lulus > span { background: var(--color-success-base); }
+.r-kosong { align-items: center; text-align: center; padding: var(--space-8) var(--space-4); }
+@media (min-width: 768px) { .r-atas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: end; } .r-atas .p-kotak { grid-column: 1 / -1; } }
+@media (min-width: 1024px) {
+  .rekap { gap: var(--space-5); }
+  .r-atas { padding: var(--space-6); }
+  .r-bawah { display: grid; grid-template-columns: 5fr 7fr; align-items: start; gap: var(--space-5); }
+}
+@media (min-width: 768px) { .rekap .deret-lencana { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.rekap .lencana { width: auto; }
+@media (max-width: 767.98px) {
+  .rekap .deret-lencana { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rekap .lencana-bulat { width: 64px; height: 64px; }
+  .rekap .lencana-bulat .ikon { width: 28px; height: 28px; }
+  .rekap .baris-skor { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+  .rekap .baris-skor > .chip { grid-column: 2; justify-self: start; }
+}
+
+/* ---------- 404: rangkaian dengan kabel putus ---------- */
+.hal-404 { min-height: 100vh; display: grid; place-items: center; padding: var(--space-6) var(--gutter-mobile);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-primary-base) 16%, transparent) 1.2px, transparent 1.6px) 0 0 / 22px 22px, var(--color-background); }
+.kartu-404 { width: 100%; max-width: 560px; align-items: center; text-align: center; padding: var(--space-8) var(--space-5); }
+.kartu-404 h1 { font-size: var(--fs-h1); }
+.kartu-404 p { max-width: 40ch; }
+.kartu-404 .deret-tombol { justify-content: center; }
+.putus-404 { display: flex; align-items: center; margin: var(--space-3) 0 var(--space-1); }
+.putus-404 .led { width: 60px; height: 60px; font-size: 24px; }
+.kabel-404 { width: 40px; height: 6px; border-radius: 3px; background: var(--color-border-strong); }
+.kabel-404.hidup { background: var(--color-primary-base); }
+.celah-404 { width: 40px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+.celah-404 i { width: 14px; height: 6px; border-radius: 3px; background: var(--color-border-strong); }
+.celah-404 i:first-child { background: var(--color-primary-base); transform: rotate(-14deg); transform-origin: left center; }
+.celah-404 b { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: var(--color-led-on); opacity: .8; }

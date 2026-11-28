@@ -9,8 +9,21 @@
   <meta name="lk-api" content="{{ url('/api') }}"><!-- mode-server -->
   <meta name="csrf-token" content="{{ csrf_token() }}"><!-- mode-server -->
   <meta name="theme-color" content="#F3F6F4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0F1A17" media="(prefers-color-scheme: dark)">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314213D'/%3E%3Ctext x='16' y='23' font-family='Arial' font-weight='800' font-size='20' text-anchor='middle' fill='%23FFC233'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LogikaKu">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:title" content="LogikaKu: belajar logika dan algoritma">
+  <meta property="og:description" content="Media belajar logika dan algoritma untuk siswa SMK kelas X TKJ dan RPL. 10 modul, latihan interaktif, kuis, dan lencana.">
+  <meta property="og:url" content="{{ url('/') }}/">
+  <meta property="og:image" content="{{ url('/') }}/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="LogikaKu: Nyalakan logikamu, satu modul satu LED.">
+  <meta name="twitter:card" content="summary_large_image">
   <script>
     /* Terapkan mode warna sebelum halaman digambar supaya tidak berkedip. */
     (function () {

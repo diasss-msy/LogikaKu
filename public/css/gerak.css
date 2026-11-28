@@ -226,3 +226,106 @@
 .gerak-modul .deret-hasil .led { animation: led-hidup 500ms var(--ease-bounce) both; animation-delay: calc(500ms + var(--i, 0) * 90ms); }
 .gerak-modul .sambungan .kabel-pendek.hidup { transform-origin: left center; animation: arus 500ms var(--ease-out) 1400ms both; }
 .gerak-modul .sambungan .led.nyala { animation: led-hidup 600ms var(--ease-bounce) 1800ms both; }
+
+/* ---------- Rekap Skor ----------
+ * .gerak-rekap dipasang dari JS hanya kalau gerak diizinkan. */
+.gerak-rekap .p-panel { animation: naik-blur 700ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 120ms); }
+.gerak-rekap .sapaan h1 { animation: kata-masuk 700ms var(--ease-out) both; }
+.gerak-rekap .sapaan .teks-lg { animation: kata-masuk 700ms var(--ease-out) 120ms both; }
+.gerak-rekap .p-ikon { animation: pop-masuk 600ms var(--ease-bounce) both; animation-delay: calc(250ms + var(--i, 0) * 120ms); }
+.gerak-rekap .r-ringkasan .kotak-angka { animation: pop-angka 600ms var(--ease-bounce) both; animation-delay: calc(200ms + var(--i, 0) * 90ms); }
+.gerak-rekap .progres > span { transform-origin: left center; animation: arus 900ms var(--ease-out) 500ms both; }
+.gerak-rekap .lencana .lencana-bulat { animation: pop-masuk 550ms var(--ease-bounce) both; animation-delay: calc(450ms + var(--i, 0) * 70ms); }
+.gerak-rekap .lencana .lencana-nama { animation: muncul-naik 400ms var(--ease-out) both; animation-delay: calc(500ms + var(--i, 0) * 70ms); }
+.gerak-rekap .baris-skor { animation: muncul-naik 400ms var(--ease-out) both; animation-delay: calc(500ms + var(--i, 0) * 50ms); }
+.gerak-rekap .r-bar > span { transform-origin: left center; animation: arus 700ms var(--ease-out) both; animation-delay: calc(800ms + var(--i, 0) * 50ms); }
+
+/* ---------- Latihan flowchart: blok palet masuk bergiliran ---------- */
+.gerak-modul .fc-papan .blok-palet { animation: muncul-naik 400ms var(--ease-out) 450ms both; }
+.gerak-modul .fc-papan .blok-palet:nth-child(2) { animation-delay: 510ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(3) { animation-delay: 570ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(4) { animation-delay: 630ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(5) { animation-delay: 690ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(6) { animation-delay: 750ms; }
+.gerak-modul .fc-papan .kanvas-fc > * { animation: muncul-naik 400ms var(--ease-out) 500ms both; }
+
+/* ---------- 404: percik di celah kabel ---------- */
+@keyframes percik { 0%, 100% { opacity: 0; transform: scale(.4); } 45% { opacity: 1; transform: scale(1.2); } 60% { opacity: .2; transform: scale(.6); } }
+:root:not([data-gerak="kurang"]) .celah-404 b { animation: percik 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .celah-404 b { animation: none !important; } }
+
+/* ---------- Intro logo di Landing (elemen dibuat JS hanya kalau gerak diizinkan) ----------
+ * Gaya "titik jatuh". Waktu (ms): 150–900 LED jatuh dengan jejak kabel; 900 mendarat memantul;
+ * 1150 membesar dan berubah biru; 1500 memenuhi layar; 1700 logo muncul dengan halo, cincin,
+ * dan serpihan memancar; 1750 kabel L tergambar; 2100 LED logo menyala; 2300 slogan;
+ * 2900 logo terbang ke hero dan halaman terbuka dari titik LED (diatur JS). */
+.intro-jalan, .intro-jalan body { overflow: hidden; }
+.intro-logo { position: fixed; inset: 0; z-index: 100; overflow: hidden; cursor: pointer; background: var(--color-background); --biru: #1F4FD1; }
+.intro-jatuh { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; --biru-jejak: #1F4FD1;
+  animation: intro-jatuh 750ms cubic-bezier(0.55, 0, 1, 0.45) 150ms both; }
+.intro-jejak { position: absolute; left: 50%; bottom: 14px; width: 40px; max-width: none; height: 30vh; margin-left: -20px; overflow: visible;
+  transform-origin: 50% 100%; animation: intro-jejak 1000ms ease-out 150ms both; }
+.intro-jejak path { fill: none; stroke: var(--color-primary-base); stroke-width: 3.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.intro-jejak .j2, .intro-jejak .j3 { stroke-width: 2; opacity: 0.4; }
+.intro-bola { position: absolute; inset: 0; border-radius: 50%; background: var(--biru); box-shadow: 0 0 0 5px rgba(31, 79, 209, 0.18), 0 6px 16px rgba(31, 79, 209, 0.35);
+  animation: intro-pentul 300ms ease-out 900ms forwards, intro-tumbuh 350ms cubic-bezier(0.34, 1.4, 0.64, 1) 1150ms forwards, intro-penuh 480ms cubic-bezier(0.7, 0, 0.3, 1) 1480ms forwards; }
+.intro-isi { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; pointer-events: none; }
+.intro-halo, .intro-cincin, .intro-serpih { position: absolute; left: 50%; top: 50%; }
+.intro-halo { width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); opacity: 0; animation: intro-halo 800ms ease-out 1650ms both; }
+.intro-cincin { width: 190px; height: 190px; margin: -95px 0 0 -95px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.6); opacity: 0; animation: intro-cincin 1100ms ease-out 1750ms both; }
+.intro-serpih { width: 14px; height: 14px; margin: -7px 0 0 -7px; opacity: 0;
+  animation: intro-serpih 1000ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(1700ms + var(--i) * 18ms) both, intro-redup 700ms ease-in 2550ms forwards; }
+.intro-serpih.bulat { border: 2.5px solid #fff; border-radius: 50%; }
+.intro-serpih.kotak { width: 11px; height: 11px; border: 2.5px solid #fff; border-radius: 3px; }
+.intro-serpih.titik { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #fff; border-radius: 50%; }
+.intro-serpih.cacing { width: 26px; height: 13px; margin: -6px 0 0 -13px; }
+.intro-serpih.cacing svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.intro-serpih.cacing path { fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+.intro-serpih.kuning { border-color: #FFC233; }
+.intro-serpih.kuning.titik { background: #FFC233; }
+.intro-serpih.kuning path { stroke: #FFC233; }
+.intro-tengah { position: relative; display: flex; align-items: center; gap: clamp(12px, 2.5vw, 22px); animation: intro-muncul 650ms cubic-bezier(0.34, 1.56, 0.64, 1) 1700ms both; }
+.intro-tanda { width: clamp(64px, 12vw, 104px); height: clamp(64px, 12vw, 104px); flex: none; overflow: visible; transform-origin: center; }
+.intro-kotak { stroke: rgba(255, 255, 255, 0.18); stroke-width: 1.5; }
+.intro-kabel { stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-kabel 500ms cubic-bezier(0.65, 0, 0.35, 1) 1800ms forwards; }
+.intro-led { transform-box: fill-box; transform-origin: center; scale: 0; animation: intro-led 450ms var(--ease-bounce) 2150ms forwards; }
+.intro-cahaya { transform-box: fill-box; transform-origin: center; scale: 0; opacity: 0; animation: intro-cahaya 1s ease-out 2200ms forwards; }
+.intro-nama { display: flex; font-family: var(--font-heading); font-weight: var(--weight-extrabold); font-size: clamp(36px, 7.5vw, 68px); color: #fff; letter-spacing: -0.02em; line-height: 1; }
+.intro-nama > span { opacity: 0; translate: 0 0.3em; filter: blur(6px); animation: kata-masuk 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(1780ms + var(--i) * 40ms); }
+.intro-nama > span:nth-child(n+7) { color: #FFC233; }
+.intro-slogan { position: relative; margin: 0; color: rgba(255, 255, 255, 0.82); font-size: clamp(15px, 2vw, 19px); letter-spacing: 0.02em; animation: intro-muncul-naik 500ms ease-out 2300ms both; }
+.intro-buka { cursor: default; pointer-events: none; }
+.intro-buka .intro-nama, .intro-buka .intro-slogan, .intro-buka .intro-serpih { animation: intro-pergi 350ms ease-in forwards; }
+.intro-terbang { position: fixed; z-index: 102; pointer-events: none; transform-origin: center; }
+.intro-terbang .intro-tanda { width: 100%; height: 100%; }
+/* Tanda yang terbang sudah selesai tergambar: jangan ulang animasinya saat dipindah lapisan. */
+.intro-terbang .intro-kabel { animation: none; stroke-dashoffset: 0; }
+.intro-terbang .intro-led { animation: none; scale: 1; }
+.intro-terbang .intro-cahaya { animation: none; scale: 1; opacity: 0.25; }
+.intro-lewati {
+  position: fixed; z-index: 101; right: 16px; bottom: 16px; min-height: 44px; padding: 0 18px; border-radius: 999px;
+  border: 1px solid var(--color-border-strong); background: transparent; color: var(--color-text);
+  font: 700 15px var(--font-body); cursor: pointer; animation: intro-layar 300ms ease-out 400ms both, intro-lewati-biru 300ms ease-out 1550ms forwards;
+}
+.intro-lewati:focus-visible { outline: 3px solid #FFC233; outline-offset: 3px; }
+/* Selama intro, logo besar di hero disembunyikan; tanda yang terbang akan mendarat di tempatnya. */
+.landing.dari-intro .hero-isi > .logo-chip { opacity: 0; animation: none !important; }
+.landing .hero-isi > .logo-chip.intro-tiba { animation: intro-tiba 600ms ease-out both !important; }
+@keyframes intro-layar { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-jatuh { from { translate: 0 -62vh; } to { translate: 0 0; } }
+@keyframes intro-jejak { 0% { opacity: 0; scale: 1 0.2; } 25% { opacity: 1; scale: 1 1; } 70% { opacity: 0.9; scale: 1 0.55; } 100% { opacity: 0; scale: 1 0.02; } }
+@keyframes intro-pentul { 0% { scale: 1; } 35% { scale: 1.45 0.65; } 70% { scale: 0.85 1.15; } 100% { scale: 1; } }
+@keyframes intro-tumbuh { from { scale: 1; } to { scale: 6.5; box-shadow: 0 0 0 0 rgba(31, 79, 209, 0); } }
+@keyframes intro-penuh { from { scale: 6.5; background: var(--biru); box-shadow: none; } to { scale: var(--penuh, 120); background: var(--biru); box-shadow: none; } }
+@keyframes intro-halo { 0% { opacity: 0; scale: 0.2; } 30% { opacity: 1; } 100% { opacity: 0; scale: 1.3; } }
+@keyframes intro-cincin { 0% { opacity: 0; scale: 0.5; } 20% { opacity: 1; } 100% { opacity: 0; scale: 2.2; } }
+@keyframes intro-serpih { 0% { opacity: 0; translate: 0 0; scale: 0.2; rotate: 0deg; } 25% { opacity: 1; } 100% { opacity: 1; translate: var(--x) var(--y); scale: 1; rotate: var(--r); } }
+@keyframes intro-redup { to { opacity: 0.45; } }
+@keyframes intro-muncul { from { opacity: 0; scale: 0.6; } to { opacity: 1; scale: 1; } }
+@keyframes intro-muncul-naik { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@keyframes intro-kabel { to { stroke-dashoffset: 0; } }
+@keyframes intro-led { 0% { scale: 0; } 60% { scale: 1.35; } 100% { scale: 1; } }
+@keyframes intro-cahaya { 0% { scale: 0.4; opacity: 0.6; } 60% { scale: 1.6; opacity: 0.35; } 100% { scale: 1; opacity: 0.25; } }
+@keyframes intro-pergi { to { opacity: 0; filter: blur(6px); } }
+@keyframes intro-lewati-biru { to { color: #fff; border-color: rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.08); } }
+@keyframes intro-tiba { 0% { box-shadow: 0 0 0 0 rgba(255, 194, 51, 0.6); } 100% { box-shadow: 0 0 0 22px rgba(255, 194, 51, 0), var(--shadow-lifted); } }

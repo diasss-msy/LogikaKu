@@ -166,3 +166,10 @@ p { margin: 0; }
 .baris { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
 .baris-antara { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tengah-720 { width: 100%; max-width: 720px; margin: 0 auto; }
+/* Logo "Sirkuit L": tanda SVG mengisi seluruh chip. */
+.logo-chip { overflow: hidden; }
+.logo-chip:has(.tanda-logo), :root[data-theme] .logo-chip:has(.tanda-logo) { background: none !important; box-shadow: none; }
+.tanda-logo { width: 100%; height: 100%; display: block; }
+:root[data-theme="dark"] .tanda-logo rect { stroke: rgba(255, 255, 255, .14); stroke-width: 2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tanda-logo rect { stroke: rgba(255, 255, 255, .14); stroke-width: 2; } }
+.akun-merek .tanda-logo rect { stroke: rgba(255, 255, 255, .22); stroke-width: 2; }
