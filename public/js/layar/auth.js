@@ -286,12 +286,24 @@
    * guliran, panel Cara belajar membesar, dan kabel di kaki halaman tergambar sampai LED menyala.
    * Elemen tidak ditambah atau dibuang; tanpa JS atau dengan "Kurangi animasi" semuanya tampil diam. */
   /* ---------- Intro logo di Landing ----------
-   * Layar navy: kabel huruf L tergambar, LED di ujungnya menyala, tulisan "LogikaKu" masuk.
-   * Lalu tanda logo terbang ke logo besar di hero, dan halaman terbuka dari titik LED
-   * (seperti arus yang menyalakan halaman), disusul animasi landing biasa.
+   * Gaya "titik jatuh": LED kuning jatuh dari atas lewat kabel, mendarat di tengah, cahayanya
+   * membesar sampai layar jadi biru, lalu logo muncul dengan cincin dan serpihan yang memancar.
+   * Setelah itu tanda logo terbang ke logo besar di hero dan halaman terbuka dari titik LED,
+   * disusul animasi landing biasa.
    * Hanya sekali per tab, bisa dilewati (klik, Esc, gulir, tombol "Lewati"),
    * dan tidak tampil sama sekali dengan "Kurangi animasi". */
   var KUNCI_INTRO = "logikaku-intro";
+  function serpihan() {
+    var jenis = ["bulat", "kotak", "cacing", "bulat", "titik", "cacing", "kotak", "bulat", "titik", "cacing", "bulat", "kotak", "titik", "cacing"];
+    var jari = Math.min(innerWidth, innerHeight) * 0.36 + 60;
+    return jenis.map(function (j, i) {
+      var sudut = (i / jenis.length) * Math.PI * 2 + (i % 2 ? 0.2 : -0.15);
+      var r = jari * (0.72 + ((i * 37) % 10) / 22);
+      var x = Math.round(Math.cos(sudut) * r), y = Math.round(Math.sin(sudut) * r * 0.82);
+      var isi = j === "cacing" ? '<svg viewBox="0 0 24 12"><path d="M1 6c3-5 6 5 9 0s6-5 9 0 3 3 4 2"/></svg>' : "";
+      return '<span class="intro-serpih ' + j + (i % 5 === 2 ? " kuning" : "") + '" style="--x:' + x + "px;--y:" + y + "px;--r:" + ((i * 47) % 180 - 90) + "deg;--i:" + i + '">' + isi + "</span>";
+    }).join("");
+  }
   LK.introLogo = function (L, lanjut) {
     var sudah = false;
     try { sudah = sessionStorage.getItem(KUNCI_INTRO) === "1"; } catch (e) { sudah = false; }
@@ -301,10 +313,18 @@
     var layar = document.createElement("div");
     layar.className = "intro-logo";
     layar.setAttribute("aria-hidden", "true");
-    layar.innerHTML = '<div class="intro-tengah"><svg class="intro-tanda" viewBox="0 0 64 64"><rect class="intro-kotak" width="64" height="64" rx="14" fill="#14213D"/>' +
+    /* Skala bola biru supaya menutupi seluruh layar (diameter awal 18px). */
+    layar.style.setProperty("--penuh", String(Math.ceil(Math.hypot(innerWidth, innerHeight) / 18) + 2));
+    layar.innerHTML =
+      '<div class="intro-jatuh"><svg class="intro-jejak" viewBox="0 0 30 300" preserveAspectRatio="none">' +
+      '<path class="j1" d="M15 0c-6 40 8 70 0 110s6 70 0 110 4 50 0 80"/><path class="j2" d="M5 40c-3 30 4 60 0 90s3 50 0 80"/><path class="j3" d="M26 20c3 30-4 60 0 90s-3 40 0 60"/></svg>' +
+      '<span class="intro-bola"></span></div>' +
+      '<div class="intro-isi"><span class="intro-halo"></span><span class="intro-cincin"></span>' + serpihan() +
+      '<div class="intro-tengah"><svg class="intro-tanda" viewBox="0 0 64 64"><rect class="intro-kotak" width="64" height="64" rx="14" fill="#14213D"/>' +
       '<path class="intro-kabel" d="M22 14v30h13" fill="none" stroke="#FFC233" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>' +
       '<circle class="intro-cahaya" cx="45" cy="44" r="12" fill="#FFC233" opacity=".25"/><circle class="intro-led" cx="45" cy="44" r="7" fill="#FFC233"/></svg>' +
-      '<span class="intro-nama">' + "LogikaKu".split("").map(function (h, i) { return '<span style="--i:' + i + '">' + h + "</span>"; }).join("") + "</span></div>";
+      '<span class="intro-nama">' + "LogikaKu".split("").map(function (h, i) { return '<span style="--i:' + i + '">' + h + "</span>"; }).join("") + "</span></div>" +
+      '<p class="intro-slogan">Belajar logika dan algoritma</p></div>';
     var lewati = document.createElement("button");
     lewati.type = "button"; lewati.className = "intro-lewati"; lewati.textContent = "Lewati";
     document.body.appendChild(layar); document.body.appendChild(lewati);
@@ -364,7 +384,7 @@
         if (tujuan) tujuan.classList.add("intro-tiba");
         selesai = true; bersih();
       }, 900));
-    }, 1700));
+    }, 2900));
   };
 
   LK.gerakLanding = function (L) {
