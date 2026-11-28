@@ -25,7 +25,7 @@
       background: radial-gradient(circle, var(--grid) 1.2px, transparent 1.6px) 0 0 / 22px 22px, var(--bg); }
     main { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 40px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
     .logo { display: inline-flex; align-items: center; gap: 10px; font: 800 22px "Bricolage Grotesque", sans-serif; color: var(--text); text-decoration: none; }
-    .logo span { width: 34px; height: 34px; border-radius: 9px; background: #14213D; color: var(--led); display: grid; place-items: center; font-size: 19px; }
+    .logo span, .logo svg { width: 34px; height: 34px; display: block; }
     .putus { display: flex; align-items: center; margin: 16px 0 8px; }
     .led { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font: 700 26px "JetBrains Mono", monospace; background: var(--mati); color: var(--muted); }
     .led.nyala { background: var(--led); color: #14213D; box-shadow: 0 0 0 10px rgba(255, 194, 51, .22); animation: kedip 3s ease-in-out infinite; }
@@ -49,7 +49,7 @@
 </head>
 <body>
   <main>
-    <a class="logo" href="{{ url('/') }}/#/beranda"><span aria-hidden="true">L</span>LogikaKu</a>
+    <a class="logo" href="{{ url('/') }}/#/beranda"><span aria-hidden="true"><svg width="34" height="34" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#14213D"/><path d="M22 14v30h13" fill="none" stroke="#FFC233" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="45" cy="44" r="12" fill="#FFC233" opacity=".25"/><circle cx="45" cy="44" r="7" fill="#FFC233"/></svg></span>LogikaKu</a>
     <div class="putus" aria-hidden="true">
       <span class="led nyala">4</span><span class="kabel hidup"></span><span class="led">0</span><span class="celah"><i></i><b></b><i></i></span><span class="led">4</span>
     </div>

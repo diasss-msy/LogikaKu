@@ -94,7 +94,7 @@
       shell: "polos", judul: o.judul,
       html: '<div class="akun">' +
         '<aside class="akun-merek" aria-hidden="true"><div class="titik-breadboard"></div>' +
-        '<a class="logo logo-terang" href="#/landing" tabindex="-1"><span class="logo-chip kuning">L</span>LogikaKu</a>' +
+        '<a class="logo logo-terang" href="#/landing" tabindex="-1"><span class="logo-chip">' + K.tanda() + '</span>LogikaKu</a>' +
         '<div class="akun-merek-isi"><p class="akun-merek-judul">Satu akun, semua progresmu tersimpan.</p>' +
         "<p>Belajar di HP saat istirahat, lanjutkan di laptop lab. Rangkaianmu tetap menyala di modul terakhir.</p>" +
         '<div class="kartu kartu-melayang"><p class="caption">Beranda</p><p class="h3-like">Arus belajarmu sampai Modul 4.</p>' + rangkaianMini() + "</div></div>" +
@@ -401,7 +401,7 @@
       '<main id="utama" tabindex="-1">' +
       '<section class="hero" aria-labelledby="hero-judul"><div class="titik-breadboard" aria-hidden="true"></div>' +
       '<svg class="jalur-pcb" aria-hidden="true" viewBox="0 0 1280 900" preserveAspectRatio="none"><path d="M250 64 H420 L470 104 H560 M720 104 H830 L880 80 H970 M300 390 H370 L440 230 L520 125 M790 125 L870 230 L910 380 H1075"/></svg>' +
-      '<div class="hero-isi"><span class="logo-chip besar" aria-hidden="true">L</span>' +
+      '<div class="hero-isi"><span class="logo-chip besar" aria-hidden="true">' + K.tanda() + '</span>' +
       '<h1 id="hero-judul" class="judul-hero"><span>Belajar logika jadi</span> <span class="biru">semudah menyalakan lampu</span></h1>' +
       '<p class="teks-lg redup hero-desk">Media belajar interaktif untuk siswa SMK kelas X: dari proposisi dan tabel kebenaran sampai flowchart, percabangan, dan perulangan.</p>' +
       '<p class="baris hero-led"><span class="deret-led" aria-hidden="true">' + led10 + '</span><span class="caption">10 modul dalam 2 bab: Logika dan Algoritma</span></p>' +

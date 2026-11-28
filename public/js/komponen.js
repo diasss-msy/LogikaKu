@@ -16,8 +16,14 @@ window.LK = window.LK || {};
     return '<a class="tautan" href="' + href + '">' + (ikon ? I(ikon) : "") + esc(label) + "</a>";
   };
 
+  /* Tanda logo "Sirkuit L": huruf L dari kabel yang berujung LED menyala (sama dengan favicon.svg). */
+  K.tanda = function () {
+    return '<svg class="tanda-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#14213D"/>' +
+      '<path d="M22 14v30h13" fill="none" stroke="#FFC233" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle class="tanda-cahaya" cx="45" cy="44" r="12" fill="#FFC233" opacity=".25"/><circle cx="45" cy="44" r="7" fill="#FFC233"/></svg>';
+  };
   K.logo = function (href) {
-    return '<a class="logo" href="' + (href || "#/beranda") + '"><span class="logo-chip" aria-hidden="true">L</span>LogikaKu</a>';
+    return '<a class="logo" href="' + (href || "#/beranda") + '"><span class="logo-chip" aria-hidden="true">' + K.tanda() + "</span>LogikaKu</a>";
   };
 
   /* Tombol ganti mode terang/gelap. Labelnya menyebut mode tujuan. */

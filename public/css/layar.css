@@ -151,8 +151,6 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   .akun-form { padding-top: var(--space-7); }
 }
 @media (min-width: 768px) and (max-width: 1023px) { .akun-form { padding-top: var(--space-7); } }
-:root .logo-chip.kuning, :root[data-theme] .logo-chip.kuning { background: var(--color-accent-base); color: var(--color-accent-on); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-chip.kuning { background: var(--color-accent-base); } }
 .titik-breadboard {
   position: absolute; inset: 0; pointer-events: none;
   background-image: radial-gradient(circle, rgba(127, 151, 140, 0.45) 1.5px, transparent 1.6px);
