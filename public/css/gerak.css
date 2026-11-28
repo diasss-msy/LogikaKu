@@ -263,7 +263,7 @@
 .intro-logo { position: fixed; inset: 0; z-index: 100; overflow: hidden; cursor: pointer; background: var(--color-background); --biru: #1F4FD1; }
 .intro-jatuh { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; --biru-jejak: #1F4FD1;
   animation: intro-jatuh 750ms cubic-bezier(0.55, 0, 1, 0.45) 150ms both; }
-.intro-jejak { position: absolute; left: 50%; bottom: 14px; width: 40px; height: 30vh; margin-left: -20px; overflow: visible;
+.intro-jejak { position: absolute; left: 50%; bottom: 14px; width: 40px; max-width: none; height: 30vh; margin-left: -20px; overflow: visible;
   transform-origin: 50% 100%; animation: intro-jejak 1000ms ease-out 150ms both; }
 .intro-jejak path { fill: none; stroke: var(--color-primary-base); stroke-width: 3.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .intro-jejak .j2, .intro-jejak .j3 { stroke-width: 2; opacity: 0.4; }
