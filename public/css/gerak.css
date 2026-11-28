@@ -226,3 +226,30 @@
 .gerak-modul .deret-hasil .led { animation: led-hidup 500ms var(--ease-bounce) both; animation-delay: calc(500ms + var(--i, 0) * 90ms); }
 .gerak-modul .sambungan .kabel-pendek.hidup { transform-origin: left center; animation: arus 500ms var(--ease-out) 1400ms both; }
 .gerak-modul .sambungan .led.nyala { animation: led-hidup 600ms var(--ease-bounce) 1800ms both; }
+
+/* ---------- Rekap Skor ----------
+ * .gerak-rekap dipasang dari JS hanya kalau gerak diizinkan. */
+.gerak-rekap .p-panel { animation: naik-blur 700ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 120ms); }
+.gerak-rekap .sapaan h1 { animation: kata-masuk 700ms var(--ease-out) both; }
+.gerak-rekap .sapaan .teks-lg { animation: kata-masuk 700ms var(--ease-out) 120ms both; }
+.gerak-rekap .p-ikon { animation: pop-masuk 600ms var(--ease-bounce) both; animation-delay: calc(250ms + var(--i, 0) * 120ms); }
+.gerak-rekap .r-ringkasan .kotak-angka { animation: pop-angka 600ms var(--ease-bounce) both; animation-delay: calc(200ms + var(--i, 0) * 90ms); }
+.gerak-rekap .progres > span { transform-origin: left center; animation: arus 900ms var(--ease-out) 500ms both; }
+.gerak-rekap .lencana .lencana-bulat { animation: pop-masuk 550ms var(--ease-bounce) both; animation-delay: calc(450ms + var(--i, 0) * 70ms); }
+.gerak-rekap .lencana .lencana-nama { animation: muncul-naik 400ms var(--ease-out) both; animation-delay: calc(500ms + var(--i, 0) * 70ms); }
+.gerak-rekap .baris-skor { animation: muncul-naik 400ms var(--ease-out) both; animation-delay: calc(500ms + var(--i, 0) * 50ms); }
+.gerak-rekap .r-bar > span { transform-origin: left center; animation: arus 700ms var(--ease-out) both; animation-delay: calc(800ms + var(--i, 0) * 50ms); }
+
+/* ---------- Latihan flowchart: blok palet masuk bergiliran ---------- */
+.gerak-modul .fc-papan .blok-palet { animation: muncul-naik 400ms var(--ease-out) 450ms both; }
+.gerak-modul .fc-papan .blok-palet:nth-child(2) { animation-delay: 510ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(3) { animation-delay: 570ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(4) { animation-delay: 630ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(5) { animation-delay: 690ms; }
+.gerak-modul .fc-papan .blok-palet:nth-child(6) { animation-delay: 750ms; }
+.gerak-modul .fc-papan .kanvas-fc > * { animation: muncul-naik 400ms var(--ease-out) 500ms both; }
+
+/* ---------- 404: percik di celah kabel ---------- */
+@keyframes percik { 0%, 100% { opacity: 0; transform: scale(.4); } 45% { opacity: 1; transform: scale(1.2); } 60% { opacity: .2; transform: scale(.6); } }
+:root:not([data-gerak="kurang"]) .celah-404 b { animation: percik 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .celah-404 b { animation: none !important; } }

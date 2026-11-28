@@ -18,6 +18,7 @@ Route::prefix('api')->group(function () {
 
     Route::middleware('auth')->group(function () {
         Route::get('/saya', [AkunController::class, 'saya']);
+        Route::put('/profil', [AkunController::class, 'ubahProfil'])->middleware('throttle:ubah-profil');
         Route::put('/sandi', [AkunController::class, 'gantiSandi'])->middleware('throttle:ganti-sandi');
         Route::post('/progres/{modul}/langkah', [ProgresController::class, 'langkah'])->whereNumber('modul');
         Route::post('/progres/{modul}/kuis', [ProgresController::class, 'kuis'])->whereNumber('modul');

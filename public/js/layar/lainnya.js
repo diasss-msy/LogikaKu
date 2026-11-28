@@ -10,12 +10,13 @@
     if (!r.adaSkor || ctx.q.kosong) {
       return {
         judul: "Rekap kosong", aktif: "rekap", topbar: tb,
-        html: '<h1 class="judul-display">Rekap Belajarmu</h1><div class="keadaan kartu kartu-xl">' +
+        html: '<div class="rekap"><div class="sapaan"><p class="caption">Rekap Skor</p><h1 class="judul-display">Rekap Belajarmu</h1></div><div class="p-panel keadaan r-kosong">' +
           '<div class="led-padam" aria-hidden="true"><span class="kabel-pendek"></span><span class="led mati">1</span><span class="kabel-pendek"></span></div>' +
           '<h2>Belum ada skor</h2><p class="redup">Kerjakan kuis Modul 1 untuk menyalakan rangkaianmu.</p>' +
-          K.tombol({ label: "Mulai Modul 1", href: "#/modul/1/materi" }) + "</div>"
+          K.tombol({ label: "Mulai Modul 1", href: "#/modul/1/materi" }) + "</div></div>"
       };
     }
+    var total = LK.data.modul.length;
     var lencana = LK.data.modul.map(function (m) {
       var dapat = LK.lulus(m.no);
       return '<li class="lencana' + (dapat ? "" : " terkunci") + '"><span class="lencana-bulat" aria-hidden="true">' + I(dapat ? "award" : "lock") + '</span><span class="lencana-nama">' + esc(m.lencana) + '</span><span class="sr-only">' + (dapat ? "sudah didapat" : "belum didapat") + "</span></li>";
@@ -23,27 +24,51 @@
     var ulang = LK.sesi.perluDiulang || [];
     var perlu = ulang.length
       ? ulang.map(function (u) {
-        return '<li class="kartu tumpuk-sm"><div class="baris-antara"><h3>' + esc(u.topik) + "</h3>" + K.chip("error", "Perlu diulang") + "</div>" +
+        return '<li class="r-ulang"><div class="baris-antara"><h3>' + esc(u.topik) + "</h3>" + K.chip("error", "Perlu diulang") + "</div>" +
           '<p class="caption">Modul ' + u.modul + ", " + u.benar + " dari " + u.total + " soal benar</p>" +
           '<div class="deret-tombol">' + K.tombol({ label: "Pelajari lagi", varian: "secondary", href: LK.tautanTopik(u.modul, u.topik) }) + K.tombol({ label: "Latihan lagi", varian: "ghost", href: "#/modul/" + u.modul + "/latihan" }) + "</div></li>";
       }).join("")
-      : '<li class="kartu tumpuk-sm"><h3>Semua materi sudah kamu kuasai</h3><p class="redup">Coba ulangi kuis untuk skor sempurna.</p></li>';
+      : '<li class="r-ulang r-ulang-beres"><span class="petak-ikon sukses" aria-hidden="true">' + I("check-circle") + '</span><div><h3>Semua materi sudah kamu kuasai</h3><p class="redup">Coba ulangi kuis untuk skor sempurna.</p></div></li>';
     var skor = LK.data.modul.map(function (m) {
       var p = LK.progres(m.no), ada = p.terbaik !== undefined, lulus = LK.lulus(m.no);
       var chip = lulus ? K.chip("success", "Lulus") : ada ? K.chip("error", "Perlu diulang") : LK.statusModul(m.no) === "terkunci" ? K.chip("muted", "Belum dimulai") : K.chip("muted", "Belum ada skor");
-      return '<li class="baris-skor"><div><p class="label">Modul ' + m.no + ": " + esc(m.judul) + '</p><p class="caption">' + (ada ? "Terakhir " + p.terakhir + "/" + p.total + ", terbaik " + p.terbaik + "/" + p.total : "Belum ada skor") + "</p></div>" + chip + "</li>";
+      var persen = ada ? Math.round((p.terbaik / p.total) * 100) : 0;
+      return '<li class="baris-skor' + (ada ? "" : " kosong") + '"><span class="r-no" aria-hidden="true">' + m.no + '</span><div class="r-skor-isi"><p class="label">Modul ' + m.no + ": " + esc(m.judul) + '</p><p class="caption">' + (ada ? "Terakhir " + p.terakhir + "/" + p.total + ", terbaik " + p.terbaik + "/" + p.total : "Belum ada skor") + "</p>" +
+        (ada ? '<span class="r-bar' + (lulus ? " lulus" : "") + '" aria-hidden="true"><span style="width:' + persen + '%"></span></span>' : "") + "</div>" + chip + "</li>";
     }).join("");
+    var html = '<div class="rekap">' +
+      '<div class="p-panel r-atas"><div class="sapaan"><p class="caption">Rekap Skor</p><h1 class="judul-display">Rekap Belajarmu</h1>' +
+      '<p class="teks-lg redup">' + r.selesai + " dari " + total + " modul selesai. " + (ulang.length ? ulang.length + " materi perlu diulang." : "Tidak ada materi yang perlu diulang.") + "</p></div>" +
+      '<section class="ringkasan r-ringkasan" aria-label="Ringkasan"><div class="kotak-angka"><strong>' + r.selesai + "/" + total + '</strong><span>Modul selesai</span></div>' +
+      '<div class="kotak-angka"><strong>' + r.lencana + '</strong><span>Lencana</span></div><div class="kotak-angka"><strong>' + (r.rata === null ? "–" : r.rata) + "</strong><span>Rata-rata skor</span></div></section>" +
+      '<div class="p-kotak">' + K.progresBar((r.selesai / total) * 100, r.selesai + " dari " + total + " modul", "Progres seluruh modul") + "</div></div>" +
+      '<section class="p-panel" aria-labelledby="judul-lencana">' + K.kepalaPanel("award", "judul-lencana", "Lencana", r.lencana + " dari " + total + " lencana terkumpul") +
+      '<div class="p-kotak"><ul class="deret-lencana">' + lencana + "</ul></div></section>" +
+      '<div class="r-bawah">' +
+      '<section class="p-panel" aria-labelledby="judul-ulang">' + K.kepalaPanel("alert-circle", "judul-ulang", "Perlu diulang", "Materi yang skornya masih di bawah 70") +
+      '<ul class="daftar-polos tumpuk-sm">' + perlu + "</ul></section>" +
+      '<section class="p-panel" aria-labelledby="judul-skor">' + K.kepalaPanel("bar-chart", "judul-skor", "Skor per modul", "Skor kuis terakhir dan terbaik") +
+      '<ul class="daftar-skor">' + skor + "</ul></section></div></div>";
     return {
-      judul: "Rekap Skor", aktif: "rekap", topbar: tb,
-      html: '<h1 class="judul-display">Rekap Belajarmu</h1>' +
-        '<section class="ringkasan ringkasan-rekap" aria-label="Ringkasan"><div class="kotak-angka"><strong>' + r.selesai + "/" + LK.data.modul.length + '</strong><span>Modul selesai</span></div>' +
-        '<div class="kotak-angka"><strong>' + r.lencana + '</strong><span>Lencana</span></div><div class="kotak-angka"><strong>' + (r.rata === null ? "–" : r.rata) + "</strong><span>Rata-rata skor</span></div></section>" +
-        '<section aria-labelledby="judul-lencana" class="tumpuk"><h2 id="judul-lencana" class="h3-like">Lencana</h2><ul class="deret-lencana">' + lencana + "</ul></section>" +
-        '<div class="dua-kolom rasio-5-7"><section class="tumpuk" aria-labelledby="judul-ulang"><div><h2 id="judul-ulang">Perlu diulang</h2><p class="caption">Materi yang skornya masih di bawah 70.</p></div><ul class="daftar-polos tumpuk">' + perlu + "</ul></section>" +
-        '<section class="tumpuk" aria-labelledby="judul-skor"><h2 id="judul-skor">Skor per modul</h2><ul class="daftar-skor">' + skor + "</ul></section></div>" +
-        "<div>" + K.tombol({ label: "Kembali ke Beranda", href: "#/beranda" }) + "</div>"
+      judul: "Rekap Skor", aktif: "rekap", topbar: tb, html: html,
+      pasang: function (el) { gerakRekap(el); }
     };
   });
+
+  /* Gerak Rekap: panel naik bergiliran, angka menghitung, lencana muncul satu per satu,
+   * batang skor terisi. Mati total dengan "Kurangi animasi". */
+  function gerakRekap(el) {
+    var R = el.querySelector(".rekap");
+    if (!R || LK.kurangiGerak()) return;
+    R.querySelectorAll(".p-panel").forEach(function (p, i) { p.style.setProperty("--i", i); });
+    R.querySelectorAll(".r-ringkasan .kotak-angka").forEach(function (k, i) {
+      k.style.setProperty("--i", i);
+      if (LK.hitungAngka) LK.hitungAngka(k.querySelector("strong"), 250 + i * 90);
+    });
+    R.querySelectorAll(".lencana").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    R.querySelectorAll(".baris-skor").forEach(function (x, i) { x.style.setProperty("--i", i); });
+    R.classList.add("gerak-rekap");
+  }
 
   /* ---------- 14 Profil dan Pengaturan ---------- */
   function bukaKeluar() {
@@ -88,7 +113,8 @@
       judul: "Profil", aktif: "profil", topbar: { judul: "Profil", kembali: "#/beranda" }, html: html,
       pasang: function (el) {
         el.querySelector('[data-aksi="keluar"]').addEventListener("click", bukaKeluar);
-        el.querySelector('[data-aksi="ubah"]').addEventListener("click", function () { LK.umumkan("Mengubah profil tersedia di tahap 2."); });
+        el.querySelector('[data-aksi="ubah"]').addEventListener("click", function () { LK.buka("#/profil/ubah"); });
+        if (ctx.q.tersimpan) LK.umumkan("Profil sudah diperbarui.");
         if (ctx.q.keluar) bukaKeluar();
       }
     };
@@ -119,6 +145,49 @@
           var on = sg.getAttribute("aria-checked") !== "true";
           sg.setAttribute("aria-checked", on); sg.querySelector(".saklar-huruf").textContent = on ? "T" : "F";
           LK.ubahPref("gerak", on ? "kurang" : "normal");
+        });
+      }
+    };
+  });
+
+  /* ---------- 14d Ubah profil: nama dan email ---------- */
+  LK.rute("/profil/ubah", function () {
+    var awalEmail = LK.sesi.email || "";
+    var html = '<div class="halaman-panel ubah-profil">' +
+      '<section class="p-panel" aria-labelledby="judul-ubah">' +
+      K.kepalaPanel("user", "judul-ubah", "Ubah profil", "Nama panggilan dan email untuk masuk") +
+      '<form class="tumpuk form-panel" novalidate>' +
+      K.kolom({ id: "nama", label: "Nama panggilan", autocomplete: "nickname", nilai: LK.sesi.nama, maxlength: 20, bantuan: "Maksimal 20 karakter. Tampil di Beranda dan Profil." }) +
+      K.kolom({ id: "email", label: "Email", type: "email", autocomplete: "email", inputmode: "email", nilai: awalEmail }) +
+      '<div class="konfirmasi-sandi" hidden>' +
+      K.kolom({ id: "sandi", label: "Kata sandi saat ini", type: "password", autocomplete: "current-password", bantuan: "Dibutuhkan karena kamu mengganti email." }) + "</div>" +
+      '<div class="deret-tombol">' + K.tombol({ label: "Simpan profil", type: "submit" }) + K.tombol({ label: "Batal", varian: "ghost", href: "#/profil" }) + "</div>" +
+      "</form></section></div>";
+    return {
+      judul: "Ubah profil", aktif: "profil", topbar: { judul: "Ubah profil", kembali: "#/profil" }, html: html,
+      pasang: function (el) {
+        var form = el.querySelector("form"), blokSandi = el.querySelector(".konfirmasi-sandi");
+        function emailBerubah(v) { return v.trim().toLowerCase() !== awalEmail.toLowerCase(); }
+        LK.form(form, {
+          judulGalat: "Profil belum disimpan",
+          aturan: {
+            nama: function (v) { return !v.trim() ? "Nama panggilan belum diisi." : v.trim().length > 20 ? "Nama panggilan maksimal 20 karakter." : null; },
+            email: function (v) { return !v.trim() ? "Email belum diisi." : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : "Format email belum benar. Contoh: nama@email.com"; },
+            sandi: function (v, s) { return LK.server && emailBerubah(s.email) && !v ? "Masukkan kata sandi untuk mengganti email." : null; }
+          },
+          saatKetik: function (v) { blokSandi.hidden = !(LK.server && emailBerubah(v.email)); },
+          kirim: function (v, a) {
+            var isi = { nama: v.nama.trim(), email: v.email.trim().toLowerCase() };
+            if (!LK.server) {
+              LK.sesi.nama = isi.nama; LK.sesi.email = isi.email; LK.simpanSesi();
+              LK.buka("#/profil?tersimpan"); return;
+            }
+            if (emailBerubah(v.email)) isi.sandi = v.sandi;
+            LK.api.kirim("PUT", "/profil", isi).then(function (j) {
+              if (j.ok && j.data && j.data.akun) { LK.terimaSesi(j.data.akun); LK.buka("#/profil?tersimpan"); return; }
+              LK.galatServer(j, a, { label: "Simpan profil", judul: "Profil belum disimpan", fokus: "nama", petaKolom: { nama: "nama", email: "email", sandi: "sandi" } });
+            });
+          }
         });
       }
     };
@@ -183,7 +252,7 @@
     ["05d-hasil-lulus", "Hasil lulus", "#/modul/4/hasil?demo=lulus"], ["05e-hasil-belum-lulus", "Hasil belum lulus", "#/modul/4/hasil?demo=belum"], ["06-lencana", "Modal lencana", "#/modul/4/hasil?demo=lulus&lencana"],
     ["07-rekap", "Rekap skor", "#/rekap"], ["08-pseudocode", "Penelusur pseudocode", "#/modul/8/latihan?paksa&demo"], ["09-gerbang", "Lab gerbang logika", "#/modul/2/latihan"],
     ["10a-kosong-rekap", "Rekap kosong", "#/rekap?kosong"], ["10b-error-materi", "Materi gagal dimuat", "#/modul/4/materi?gagal"], ["10c-offline-beranda", "Beranda offline", "#/beranda?offline"], ["10d-memuat-beranda", "Memuat beranda", "#/beranda?memuat"],
-    ["14-profil", "Profil", "#/profil"], ["14b-keluar", "Konfirmasi keluar", "#/profil?keluar"], ["14c-pengaturan", "Pengaturan", "#/pengaturan"],
+    ["14-profil", "Profil", "#/profil"], ["14b-keluar", "Konfirmasi keluar", "#/profil?keluar"], ["14c-pengaturan", "Pengaturan", "#/pengaturan"], ["14d-ubah-profil", "Ubah profil", "#/profil/ubah"],
     ["15-latihan-proposisi", "Latihan proposisi", "#/modul/1/latihan"], ["15b-latihan-proposisi-benar", "Latihan proposisi benar", "#/modul/1/latihan?demo=benar"],
     ["16-latihan-implikasi", "Latihan implikasi", "#/modul/3/latihan"], ["17-latihan-ekuivalensi", "Latihan ekuivalensi", "#/modul/5/latihan?paksa"], ["18-latihan-komputasi", "Latihan berpikir komputasional", "#/modul/6/latihan?paksa"],
     ["19-latihan-percabangan", "Latihan percabangan", "#/modul/9/latihan?paksa"], ["20-latihan-perulangan", "Latihan perulangan", "#/modul/10/latihan?paksa"],
@@ -212,10 +281,19 @@
     return { alih: "#/beranda?naik=5" };
   });
 
+  /* Alamat hash yang tidak dikenal: rangkaian "404" dengan kabel putus. */
   LK.layar.tidakAda = function () {
+    var ke = LK.sesi ? "#/beranda" : "#/landing";
     return {
       shell: "polos", judul: "Halaman tidak ditemukan",
-      html: '<main id="utama" class="indeks keadaan" tabindex="-1"><h1>Halaman tidak ditemukan</h1><p class="redup">Alamat ini tidak ada di LogikaKu.</p>' + K.tombol({ label: "Ke Beranda", href: "#/beranda" }) + "</main>"
+      html: '<main id="utama" class="hal-404" tabindex="-1"><div class="p-panel kartu-404">' + K.logo(ke) +
+        '<div class="putus-404" aria-hidden="true"><span class="led nyala">4</span><span class="kabel-404 hidup"></span><span class="led mati">0</span>' +
+        '<span class="celah-404"><i></i><b></b><i></i></span><span class="led mati">4</span></div>' +
+        '<h1>Halaman tidak ditemukan</h1><p class="redup">Kabelnya putus di sini. Alamat yang kamu buka tidak ada di LogikaKu, mungkin salah ketik atau sudah dipindah.</p>' +
+        '<div class="deret-tombol">' + K.tombol({ label: LK.sesi ? "Ke Beranda" : "Ke halaman awal", href: ke }) + K.tombol({ label: "Kembali", varian: "secondary", aksi: "kembali" }) + "</div></div></main>",
+      pasang: function (el) {
+        el.querySelector('[data-aksi="kembali"]').addEventListener("click", function () { if (history.length > 1) history.back(); else LK.buka(ke); });
+      }
     };
   };
 })();

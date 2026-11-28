@@ -28,8 +28,12 @@ jobs:
       - run: |
           mkdir -p _site
           cp -r public/css public/js public/data _site/
-          grep -v 'mode-server' resources/views/app.blade.php > _site/index.html
-          if grep -n '{{\|@csrf\|@if' _site/index.html; then echo "Masih ada sintaks Blade di versi demo"; exit 1; fi
+          cp public/favicon.svg public/apple-touch-icon.png public/ikon-192.png public/ikon-512.png public/og-image.png public/site.webmanifest _site/
+          # Alamat pratinjau tautan (og:url, og:image) memakai alamat GitHub Pages.
+          ALAMAT="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          grep -v 'mode-server' resources/views/app.blade.php | sed "s#{{ url('/') }}#${ALAMAT}#g" > _site/index.html
+          sed "s#{{ url('/') }}#${ALAMAT}#g" resources/views/errors/404.blade.php > _site/404.html
+          if grep -n '{{\|@csrf\|@if' _site/index.html _site/404.html; then echo "Masih ada sintaks Blade di versi demo"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

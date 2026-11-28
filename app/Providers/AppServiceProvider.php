@@ -25,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('lupa-sandi', fn (Request $r) => Limit::perMinute(3)->by('lupa|'.$email($r)));
         RateLimiter::for('sandi-baru', fn (Request $r) => Limit::perMinute(6)->by('baru|'.$email($r)));
         RateLimiter::for('daftar', fn (Request $r) => Limit::perMinute(10)->by('daftar|'.$r->ip()));
+        RateLimiter::for('ubah-profil', fn (Request $r) => Limit::perMinute(6)->by('profil|'.$r->user()?->id));
         RateLimiter::for('ganti-sandi', fn (Request $r) => Limit::perMinute(6)->by('ganti|'.$r->user()?->id));
 
         /* Email lupa kata sandi. Tautannya membuka layar #/sandi-baru di tampilan, bukan halaman Laravel. */

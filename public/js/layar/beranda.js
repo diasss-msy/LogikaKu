@@ -75,6 +75,7 @@
       requestAnimationFrame(langkah);
     }, tunda);
   }
+  LK.hitungAngka = hitungAngka;
 
   function gerakBeranda(el, naik) {
     var B = el.querySelector(".beranda");
