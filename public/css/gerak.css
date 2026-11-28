@@ -253,3 +253,45 @@
 @keyframes percik { 0%, 100% { opacity: 0; transform: scale(.4); } 45% { opacity: 1; transform: scale(1.2); } 60% { opacity: .2; transform: scale(.6); } }
 :root:not([data-gerak="kurang"]) .celah-404 b { animation: percik 1.6s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .celah-404 b { animation: none !important; } }
+
+/* ---------- Intro logo di Landing (elemen dibuat JS hanya kalau gerak diizinkan) ----------
+ * 0–0,25 dtk layar navy; 0,2–0,9 kabel L tergambar; 0,85 LED menyala dan berdenyut;
+ * 1,0–1,5 tulisan masuk per huruf; 1,7 tulisan pergi, tanda terbang, halaman terbuka dari LED. */
+.intro-jalan, .intro-jalan body { overflow: hidden; }
+.intro-logo {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; cursor: pointer;
+  background: radial-gradient(circle, rgba(138, 168, 255, 0.14) 1.2px, transparent 1.6px) 0 0 / 22px 22px, #14213D;
+}
+.intro-terbang { position: fixed; z-index: 102; pointer-events: none; transform-origin: center; }
+.intro-terbang .intro-tanda { width: 100%; height: 100%; }
+.intro-tengah { display: flex; align-items: center; gap: clamp(12px, 2.5vw, 24px); }
+.intro-tanda { width: clamp(72px, 14vw, 120px); height: clamp(72px, 14vw, 120px); flex: none; overflow: visible; transform-origin: center; }
+.intro-kotak { fill: #1B2A4D; stroke: rgba(255, 255, 255, 0.12); stroke-width: 1.5; }
+.intro-kabel { stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-kabel 700ms cubic-bezier(0.65, 0, 0.35, 1) 200ms forwards; }
+.intro-led { transform-box: fill-box; transform-origin: center; scale: 0; animation: intro-led 500ms var(--ease-bounce) 850ms forwards; }
+.intro-cahaya { transform-box: fill-box; transform-origin: center; scale: 0; opacity: 0; animation: intro-cahaya 1.2s ease-out 950ms forwards; }
+.intro-nama { display: flex; font-family: var(--font-heading); font-weight: var(--weight-extrabold); font-size: clamp(36px, 8vw, 72px); color: #F3F6F4; letter-spacing: -0.02em; line-height: 1; }
+.intro-nama > span { opacity: 0; translate: 0 0.3em; filter: blur(8px); animation: kata-masuk 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards; animation-delay: calc(1000ms + var(--i) * 45ms); }
+.intro-nama > span:nth-child(n+7) { color: #8AA8FF; }
+.intro-buka { cursor: default; pointer-events: none; }
+.intro-buka .intro-nama { animation: intro-pergi 350ms ease-in forwards; }
+.intro-terbang .intro-kotak { fill: #14213D; transition: fill 400ms; }
+.intro-lewati {
+  position: fixed; z-index: 101; right: 16px; bottom: 16px; min-height: 44px; padding: 0 18px; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.08); color: #F3F6F4;
+  font: 700 15px var(--font-body); cursor: pointer; animation: intro-layar 300ms ease-out 600ms both;
+}
+.intro-lewati:focus-visible { outline: 3px solid #FFC233; outline-offset: 3px; }
+/* Selama intro, logo besar di hero disembunyikan; tanda yang terbang akan mendarat di tempatnya. */
+.landing.dari-intro .hero-isi > .logo-chip { opacity: 0; animation: none !important; }
+.landing .hero-isi > .logo-chip.intro-tiba { animation: intro-tiba 600ms ease-out both !important; }
+@keyframes intro-layar { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-kabel { to { stroke-dashoffset: 0; } }
+@keyframes intro-led { 0% { scale: 0; } 60% { scale: 1.35; } 100% { scale: 1; } }
+@keyframes intro-cahaya { 0% { scale: 0.4; opacity: 0.6; } 60% { scale: 1.6; opacity: 0.35; } 100% { scale: 1; opacity: 0.25; } }
+@keyframes intro-pergi { to { opacity: 0; translate: 0.4em 0; filter: blur(8px); } }
+@keyframes intro-tiba { 0% { box-shadow: 0 0 0 0 rgba(255, 194, 51, 0.6); } 100% { box-shadow: 0 0 0 22px rgba(255, 194, 51, 0), var(--shadow-lifted); } }
+/* Tanda yang terbang sudah selesai tergambar: jangan ulang animasinya saat dipindah lapisan. */
+.intro-terbang .intro-kabel { animation: none; stroke-dashoffset: 0; }
+.intro-terbang .intro-led { animation: none; scale: 1; }
+.intro-terbang .intro-cahaya { animation: none; scale: 1; opacity: 0.25; }
